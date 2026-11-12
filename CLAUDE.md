@@ -2,7 +2,7 @@
 
 Device signals for Flutter apps and the Magic Framework: mains power and viewer-away (`DevicePower`, Dart only) and the macOS window fullscreen state (`WindowFullscreen`, backed by this package's own macOS plugin, `MagicDevicePlugin`).
 
-**Version:** 0.0.1 · **Dart:** >=3.6.0 · **Flutter:** >=3.27.0
+**Version:** 0.0.2 · **Dart:** >=3.6.0 · **Flutter:** >=3.27.0
 
 ## Commands
 
