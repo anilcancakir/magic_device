@@ -1,5 +1,5 @@
 name: magic_device
-description: "Device signals for Flutter: whether the device is on mains power, whether the viewer is away, and the macOS window fullscreen state."
+description: "Gate background work in Flutter: detect mains power (charging), viewer idle and macOS window fullscreen. One import, no setup, no Runner edits."
 version: 0.0.2
 homepage: https://anilcancakir.com/magic_device
 documentation: https://anilcancakir.com/magic_device/docs
@@ -10,8 +10,8 @@ topics:
   - battery
   - idle
   - power
+  - fullscreen
   - magic
-  - flutter
 
 environment:
   sdk: ">=3.6.0 <4.0.0"

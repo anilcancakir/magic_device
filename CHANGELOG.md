@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 
 - **The release workflow checks its own inputs.** The tag, `pubspec.yaml` and the podspec must name one version, and the package must score the full 160 points on pana before anything is published.
 - **Every change keeps the docs in step.** The post-change checklist in `CLAUDE.md` and the pull request template now require the changelog, README, `llms.txt`, `doc/` pages and the agent skill to match the change.
+- **The pub.dev description and topics are written for search and for agents.** The description leads with the job ("Gate background work in Flutter") and the three signals; the topics are `battery`, `idle`, `power`, `fullscreen` and `magic`, all existing pub.dev topics.
 - **The package is no longer marked alpha.** The README banner and the SECURITY note are gone; the version line continues as `0.0.x`.
 
 ### Added
