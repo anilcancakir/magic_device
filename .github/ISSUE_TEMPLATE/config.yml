@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/anilcancakir/magic_device/security/advisories/new
+    about: Report a vulnerability privately, not as a public issue
+  - name: API reference
+    url: https://pub.dev/documentation/magic_device/latest/
+    about: Check the API reference before opening an issue
