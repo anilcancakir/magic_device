@@ -99,7 +99,7 @@ Rules for an agent writing code against this package. Each one is a mistake the 
 | Do | Because |
 |----|---------|
 | Import only `package:magic_device/magic_device.dart` | Everything under `src/` is private. |
-| Use `DevicePower.instance`, or build one `DevicePower(...)` when you need to inject a reader; `start()` once, `stop()` when done | It already holds the process's one `Battery()`. Never construct a `Battery()` yourself: a second instance steals the first one's EventChannel subscription. |
+| Use `DevicePower.instance`, or build one `DevicePower(...)` when you need to inject a reader; let one component own `start()` and `stop()` | `instance` is shared and `stop()` has no reference count: it resets `idle` to false for every consumer. It already holds the process's one `Battery()`, so never construct a `Battery()` yourself: a second instance steals the first one's EventChannel subscription. |
 | `await power.charging`, read `power.idle` synchronously | `charging` asks the platform; `idle` is cached after `start()`. |
 | Pass `television: () => isTelevision` on Android TV | A batteryless TV reports `unknown`, which reads as not charging forever. |
 | Use `WindowFullscreen.instance` and gate the control on `available` | The channel takes one handler, and non-macOS platforms send nothing. |
