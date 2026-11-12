@@ -8,12 +8,9 @@
 
 Know when it is safe to run the heavy job. `magic_device` tells a Flutter app whether the device is on mains power, whether the viewer is away, and whether the macOS window is fullscreen. One import, no setup.
 
-> [!NOTE]
-> Alpha. APIs may change between minor versions until `1.0.0`.
-
 ## At a glance
 
-| | |
+| Fact | Value |
 |---|---|
 | Package | [`magic_device`](https://pub.dev/packages/magic_device) |
 | Install | `flutter pub add magic_device` |
@@ -114,6 +111,7 @@ Rules for an agent writing code against this package. Each one is a mistake the 
 ## Links
 
 - [API reference](https://pub.dev/documentation/magic_device/latest/)
+- [llms.txt](llms.txt) for AI coding agents
 - [Changelog](CHANGELOG.md)
 - [Report an issue](https://github.com/anilcancakir/magic_device/issues)
 - [Security policy](SECURITY.md)
