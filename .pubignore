@@ -3,6 +3,7 @@
 CLAUDE.md
 .mcp.json
 skills/
+tool/
 
 # IDEs
 .idea/
