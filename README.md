@@ -19,7 +19,7 @@ Know when it is safe to run the heavy job. `magic_device` tells a Flutter app wh
 | Install | `flutter pub add magic_device` |
 | Import | `package:magic_device/magic_device.dart` |
 | Entry points | `DevicePower` (mains power, viewer away), `WindowFullscreen` (macOS window state) |
-| Platforms | `DevicePower` runs everywhere Flutter does; system-wide idle on macOS and Windows only. `WindowFullscreen` is macOS only and reports `available == false` elsewhere. |
+| Platforms | `DevicePower` is plain Dart over `battery_plus` with no native code of its own; system-wide idle on macOS and Windows only. `WindowFullscreen` is macOS only and reports `available == false` elsewhere. |
 | Requires | Dart >=3.6, Flutter >=3.27 |
 | Dependencies | `battery_plus`, `flutter_inactive_timer`; `WindowFullscreen` uses the Flutter SDK only |
 | License | MIT |
@@ -62,7 +62,7 @@ A batteryless Android TV reports `unknown`, which would read as not charging for
 
 ### Testing
 
-Every platform read is a constructor parameter: `batteryState`, `idleDuration`, `platform` and `television`.
+Every platform read except the app lifecycle is a constructor parameter: `batteryState`, `idleDuration`, `platform` and `television`. Drive the lifecycle through the test binding.
 
 ## WindowFullscreen
 
@@ -99,7 +99,7 @@ Rules for an agent writing code against this package. Each one is a mistake the 
 | Do | Because |
 |----|---------|
 | Import only `package:magic_device/magic_device.dart` | Everything under `src/` is private. |
-| Keep one `DevicePower` per app: `start()` once, `stop()` when done | A second `Battery()` instance steals the first one's EventChannel subscription. |
+| Use `DevicePower.instance`, or build one `DevicePower(...)` when you need to inject a reader; `start()` once, `stop()` when done | It already holds the process's one `Battery()`. Never construct a `Battery()` yourself: a second instance steals the first one's EventChannel subscription. |
 | `await power.charging`, read `power.idle` synchronously | `charging` asks the platform; `idle` is cached after `start()`. |
 | Pass `television: () => isTelevision` on Android TV | A batteryless TV reports `unknown`, which reads as not charging forever. |
 | Use `WindowFullscreen.instance` and gate the control on `available` | The channel takes one handler, and non-macOS platforms send nothing. |
