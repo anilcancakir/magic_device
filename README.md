@@ -1,7 +1,7 @@
 # Magic Device
 
 [![pub.dev version](https://img.shields.io/pub/v/magic_device.svg)](https://pub.dev/packages/magic_device)
-[![CI Status](https://img.shields.io/github/actions/workflow/status/anilcancakir/magic_device/ci.yml?branch=main&label=CI)](https://github.com/anilcancakir/magic_device/actions/workflows/ci.yml)
+[![CI Status](https://img.shields.io/github/actions/workflow/status/anilcancakir/magic_device/ci.yml?branch=master&label=CI)](https://github.com/anilcancakir/magic_device/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/anilcancakir/magic_device/graph/badge.svg)](https://codecov.io/gh/anilcancakir/magic_device)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![pub points](https://img.shields.io/pub/points/magic_device)](https://pub.dev/packages/magic_device/score)
