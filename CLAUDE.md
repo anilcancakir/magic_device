@@ -35,7 +35,7 @@ macos/                    # The macOS plugin, WindowFullscreen's native half
     └── Sources/magic_device/MagicDevicePlugin.swift  # Finds the window holding the Flutter view on each call
 
 example/                  # macOS app: toggles the window and logs each notification
-doc/                      # User docs, published by the docs site: getting-started/, basics/, guides/ (conventions: .claude/rules/docs.md)
+doc/                      # User docs, published by the docs site: getting-started/, basics/, guides/
 skills/magic-device/      # Agent skill, installed with `npx skills add anilcancakir/magic_device`
 tool/check-docs.py        # Offline docs gate, run by docs-link-check.yml
 ```
@@ -74,7 +74,7 @@ Every feature, fix, or refactor must go through the red-green-refactor cycle:
 
 | Mistake | Fix |
 |---------|-----|
-| A second `Battery()` instance | `DevicePower` holds the single static one; a second instance steals the first one's EventChannel subscription |
+| Reaching into `battery_plus` to fake the battery read | Pass `batteryState:` to the constructor; `Battery()` is a singleton in battery_plus 7 and `DevicePower` holds it |
 | Importing `flutter_inactive_timer` from `device_power.dart` | Go through `os_idle.dart`, so `dart:ffi` never reaches the web compiler |
 | Treating `unknown` as mains | A batteryless Android reports `unknown`; the host passes `television` to answer true on a box that never runs on a battery |
 | Referencing an app type in the package | The `television` predicate is the seam; the default is `() => false` |
@@ -82,9 +82,13 @@ Every feature, fix, or refactor must go through the red-green-refactor cycle:
 | Editing the host's `MainFlutterWindow.swift` for fullscreen | Not needed: `MagicDevicePlugin` finds the window holding the Flutter view on each call |
 | Relative paths in `pubspec_overrides.yaml` | Use ABSOLUTE ones; the file is never committed |
 
-## First publish
+## Release
 
-The first publish (0.0.1) is a manual `flutter pub publish`, since tag-triggered OIDC cannot create a package. Later tags publish through `publish.yml` once automated publishing is enabled on pub.dev.
+1. Open a `release:` PR that bumps `pubspec.yaml`, `macos/magic_device.podspec`, `skills/magic-device/SKILL.md` and the `Version:` line above, and promotes `[Unreleased]` in `CHANGELOG.md`.
+2. After it merges, tag the merge commit with the bare version (`git tag 0.0.3 && git push origin 0.0.3`, no `v`). `publish.yml` runs from the tag; the pub.dev Admin tab holds repository `anilcancakir/magic_device`, tag pattern `{{version}}` and push events only.
+3. A failed `validate` is fixed forward: delete the tag (`git push --delete origin <tag>`), fix it on a PR and tag the new merge commit, because a re-run builds the same commit. If only `github-release` fails after pub.dev accepted the version, use "Re-run failed jobs" (never "Re-run all jobs", where `publish` is rejected as a duplicate) or run `gh release create <tag> --verify-tag --notes-file <file>`.
+
+The first publish (0.0.1) was a manual `flutter pub publish`, since tag-triggered OIDC cannot create a package.
 
 ## CI
 

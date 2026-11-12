@@ -20,8 +20,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # One `Battery()` per process lives in DevicePower: a second instance steals
-  # the first one's EventChannel subscription.
+  # DevicePower reads the battery through its `batteryState` seam; Battery() is
+  # a singleton in battery_plus 7.
   battery_plus: ^7.1.2
   # System-wide user idle on macOS and Windows only, through dart:ffi. Mobile
   # idle falls back to the app lifecycle, which is why it is not the whole

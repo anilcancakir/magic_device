@@ -51,7 +51,7 @@ Widget fullscreenButton() {
 | `WindowFullscreen.instance` | `static WindowFullscreen` | The app's one reader, made on first use. On macOS the first use reads the window once, so a window that opens already fullscreen is picked up. |
 | `available` | `bool` | `true` on macOS only (never on web). Gate the control on it. |
 | `active` | `bool` | Fullscreen, as the window last confirmed (AppKit's did-notification). |
-| `target` | `bool` | Fullscreen or on its way there. Moves on the will-notification, ahead of `active`. |
+| `target` | `bool` | Fullscreen or on its way there. Moves on the will-notification, ahead of `active`; the did-notification settles both. |
 | `transitioning` | `bool` | Between the will- and the did-notification. |
 | `toggle()` | `Future<void>` | Asks the window to enter or leave fullscreen. |
 | `pressTimeout` | `static const Duration` | 1 second. |
@@ -95,6 +95,7 @@ The state follows the window, not the calls. The plugin forwards the will- and d
 | Disposing the shared instance from a view | A view adds and removes a listener and never disposes it, or every other reader is left on a disposed notifier. |
 | Showing a fullscreen control everywhere | Gate it on `available`. |
 | Animating the layout off `active` | `active` changes only once the window lands. Follow `target`. |
+| Reaching `instance` in a macOS test without the channel mock | The first use reads the window over the channel. Mock `magic_device/window` and call `resetInstance()` afterwards; see [Testing](../guides/testing.md). |
 | Editing `MainFlutterWindow.swift` to add a channel | Not needed: the package's macOS plugin registers `magic_device/window` and finds the window on each call. |
 
 <a name="related-documentation"></a>

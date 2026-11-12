@@ -44,60 +44,88 @@ void main() {
 The app lifecycle is the one read that cannot be injected. On every platform but macOS and Windows, drive it through the test binding:
 
 ```dart
-final TestWidgetsFlutterBinding binding =
-    TestWidgetsFlutterBinding.ensureInitialized();
-final DevicePower power = DevicePower(platform: TargetPlatform.android)..start();
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:magic_device/magic_device.dart';
 
-binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
-expect(power.idle, isTrue);
+void main() {
+  final TestWidgetsFlutterBinding binding =
+      TestWidgetsFlutterBinding.ensureInitialized();
 
-binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-expect(power.idle, isFalse);
+  test('idle follows the app lifecycle', () {
+    final DevicePower power = DevicePower(platform: TargetPlatform.android)
+      ..start();
 
-power.stop();
+    binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    expect(power.idle, isTrue);
+
+    binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    expect(power.idle, isFalse);
+
+    power.stop();
+  });
+}
 ```
 
 <a name="windowfullscreen"></a>
 ## WindowFullscreen
 
-Set the platform override, stand a fake window on the `magic_device/window` channel, and undo all three in `tearDown` in this order:
+On macOS the first use of `WindowFullscreen.instance` asks the window for its state over the `magic_device/window` channel, so any test that reaches it under a macOS override needs a fake window on that channel. Set the override and the fake in `setUp`, and undo both in `tearDown` in this order:
 
 ```dart
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:magic_device/magic_device.dart';
+
 const MethodChannel channel = MethodChannel('magic_device/window');
 
-setUp(() {
-  debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
-  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-      .setMockMethodCallHandler(channel, (MethodCall call) async {
-    if (call.method == 'isFullScreen') return false;
-    return null; // toggleFullScreen
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (MethodCall call) async {
+      if (call.method == 'isFullScreen') return false;
+      return null; // toggleFullScreen
+    });
   });
-});
 
-tearDown(() {
-  WindowFullscreen.resetInstance();
-  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-      .setMockMethodCallHandler(channel, null);
-  debugDefaultTargetPlatformOverride = null;
-});
+  tearDown(() {
+    WindowFullscreen.resetInstance();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, null);
+    debugDefaultTargetPlatformOverride = null;
+  });
+
+  test('the will-notification moves target ahead of active', () async {
+    final WindowFullscreen window = WindowFullscreen.instance;
+    await Future<void>.delayed(Duration.zero); // let the first read settle
+
+    // Deliver the notification the plugin would post.
+    await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .handlePlatformMessage(
+      channel.name,
+      const StandardMethodCodec().encodeMethodCall(
+        const MethodCall('willEnterFullScreen'),
+      ),
+      (ByteData? _) {},
+    );
+
+    expect(
+      (window.active, window.target, window.transitioning),
+      (false, true, true),
+    );
+  });
+}
 ```
 
-Reset the instance first, then clear the mock handler, then the override. Resetting the override first leaves the channel handler installed, and inside `testWidgets` an override that is never reset fails the binding's invariant check.
+Reset the instance first, then clear the mock handler, then the override. Resetting the override first leaves the channel handler installed, because the reader only clears its handler while `available` is true.
 
-To play the window's side, deliver the notification the plugin would post:
+That `tearDown` order is for plain `test()`. Inside `testWidgets` the binding checks that every foundation debug variable is unset at the end of the test body, before `tearDown` runs, so with the override set in `setUp` end the body with `WindowFullscreen.resetInstance();` and `debugDefaultTargetPlatformOverride = null;`, or use `variant: TargetPlatformVariant.only(TargetPlatform.macOS)`, which sets and resets the override for you.
 
-```dart
-await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-    .handlePlatformMessage(
-  channel.name,
-  const StandardMethodCodec().encodeMethodCall(
-    const MethodCall('willEnterFullScreen'),
-  ),
-  (ByteData? _) {},
-);
-```
-
-The four notifications are `willEnterFullScreen`, `didEnterFullScreen`, `willExitFullScreen` and `didExitFullScreen`.
+The four notifications the plugin posts are `willEnterFullScreen`, `didEnterFullScreen`, `willExitFullScreen` and `didExitFullScreen`.
 
 <a name="related-documentation"></a>
 ## Related Documentation

@@ -48,8 +48,8 @@ final class DevicePower with WidgetsBindingObserver {
         _platform = platform ?? defaultTargetPlatform,
         _isTelevision = television ?? _neverTelevision;
 
-  /// One `Battery()` for the process: a second instance steals the first one's
-  /// EventChannel subscription.
+  /// The process's one `Battery()`: battery_plus makes it a singleton, so every
+  /// reader shares the same EventChannel.
   static final Battery _battery = Battery();
 
   final Future<BatteryState> Function() _readBatteryState;
@@ -106,8 +106,8 @@ final class DevicePower with WidgetsBindingObserver {
     if (state != null) didChangeAppLifecycleState(state);
   }
 
-  /// Stops collecting and forgets both answers, so a stopped instance claims no
-  /// signal rather than a stale one.
+  /// Stops collecting and resets [idle] to false, so a stopped instance claims
+  /// no signal rather than a stale one.
   void stop() {
     if (!_started) return;
     _started = false;

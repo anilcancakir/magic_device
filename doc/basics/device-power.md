@@ -37,7 +37,7 @@ Nothing is collected until `start()`: an instance that never starts holds no cha
 | `DevicePower({batteryState, idleDuration, platform, television})` | constructor | Every platform read is injectable. Omitted readers use `battery_plus`, the OS idle clock and `defaultTargetPlatform`; `television` defaults to `() => false`. |
 | `DevicePower.instance` | `static final DevicePower` | Shared instance built with every default, so it can never answer for a television. |
 | `charging` | `Future<bool>` | On mains power. Asks the platform on every read. |
-| `idle` | `bool` | Away for at least `idleThreshold`. A cached flag: read it without awaiting. |
+| `idle` | `bool` | Away. On native macOS and Windows: no input for `idleThreshold`. Everywhere else: any app lifecycle state but `resumed`, immediately, with no threshold. A cached flag: read it without awaiting. |
 | `start()` | `void` | Begins collecting. Idempotent. |
 | `stop()` | `void` | Stops collecting and resets `idle` to `false`. |
 | `idleThreshold` | `static const Duration` | 2 minutes. |
@@ -53,16 +53,21 @@ Nothing is collected until `start()`: an instance that never starts holds no cha
 | `full`, `charging`, `connectedNotCharging` | Yes. A Mac without a battery reports `connectedNotCharging`. |
 | `discharging`, `unknown` | No. A batteryless Android reports `unknown`. |
 | A platform with no `battery_plus` implementation | No. The read answers `false` instead of throwing. |
+| A web browser without `navigator.getBattery` | No. `battery_plus` reports `unknown`. |
+
+Only a missing plugin is turned into `false`. Any other error from `battery_plus` propagates from `charging`, so catch it where you await.
 
 <a name="idle"></a>
 ## Idle
 
-`power.idle` is `true` once the viewer has been away for `idleThreshold` (2 minutes). How it is measured depends on the platform.
+`power.idle` is `true` while the viewer is away. How that is measured depends on the platform, and only native macOS and Windows have a threshold.
 
 | Platform | Source |
 |:---------|:-------|
-| Native macOS and Windows | The system-wide last-input clock, read once at `start()` and then every `pollInterval` (30 seconds). Neither OS notifies "the user came back", so a poll is the only shape. |
-| Every other platform, web included | The app lifecycle: idle whenever the state is not `resumed`. There is no system-wide input clock to read, so on a phone idle means "the app is not in front", never "no touches for two minutes". |
+| Native macOS and Windows | The system-wide last-input clock: idle after `idleThreshold` (2 minutes) without input, read once at `start()` and then every `pollInterval` (30 seconds). Neither OS notifies "the user came back", so a poll is the only shape. |
+| Every other platform, web included | The app lifecycle: idle whenever the state is not `resumed` (`inactive`, `hidden` and `paused` all count), with no threshold. There is no system-wide input clock to read, so on a phone idle means "the app is not in front", never "no touches for two minutes". |
+
+The desktop poll is not guarded: if the OS idle read throws, the error surfaces as an uncaught async error.
 
 <a name="televisions"></a>
 ## Televisions
@@ -89,7 +94,8 @@ The package cannot detect a television, so `isTelevision` is the host's own sign
 |:--------|:----|
 | Reading `idle` before `start()` | It stays `false` until `start()`. |
 | Awaiting `idle` or caching `charging` | `charging` is a `Future` that asks the platform each read; `idle` is a cached `bool`. |
-| Constructing a `Battery()` beside `DevicePower` | `DevicePower` holds the process's one instance, and a second one steals its EventChannel subscription. Pass `batteryState:` to replace the read. |
+| Reaching into `battery_plus` yourself to fake the read | Pass `batteryState:` to the constructor. |
+| Expecting a grace period on a phone or on the web | `idle` flips as soon as the app leaves `resumed`: a control-centre pull or a window blur (`inactive`) counts. |
 | Treating `BatteryState.unknown` as mains | Pass `television` instead of widening the rule. |
 | Using `DevicePower.instance` on a television build | Build your own `DevicePower(television: ...)`. |
 | Calling `stop()` from a second consumer | Keep one owner for `start()` and `stop()`. |

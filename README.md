@@ -66,7 +66,7 @@ power.stop();
 | `charging` | On mains power. `full`, `charging` and `connectedNotCharging` count; `discharging` and `unknown` do not. A platform with no battery implementation answers false. |
 | `idle` | Away for at least `DevicePower.idleThreshold` (2 minutes). macOS and Windows read the system-wide last-input clock every `pollInterval` (30 seconds); every other platform reports idle whenever the app is not in front, read from the current lifecycle state at `start()` and followed from there. |
 
-Nothing is collected until `start()`, and `stop()` forgets both answers.
+Nothing is collected until `start()`, and `stop()` resets `idle` to false.
 
 ### Televisions
 
@@ -84,7 +84,6 @@ Whether the macOS window is fullscreen, and the one call that flips it. The pack
 import 'package:magic_device/magic_device.dart';
 
 final WindowFullscreen fullscreen = WindowFullscreen.instance;
-fullscreen.addListener(() => setState(() {}));
 
 if (fullscreen.available) {
   await fullscreen.toggle();
@@ -113,7 +112,7 @@ Rules for an agent writing code against this package. Each one is a mistake the 
 | Do | Because |
 |----|---------|
 | Import only `package:magic_device/magic_device.dart` | Everything under `src/` is private. |
-| Use `DevicePower.instance`, or build one `DevicePower(...)` when you need to inject a reader; let one component own `start()` and `stop()` | `instance` is shared and `stop()` has no reference count: it resets `idle` to false for every consumer. It already holds the process's one `Battery()`, so never construct a `Battery()` yourself: a second instance steals the first one's EventChannel subscription. |
+| Use `DevicePower.instance`, or build one `DevicePower(...)` when you need to inject a reader; let one component own `start()` and `stop()` | `instance` is shared and `stop()` has no reference count: it resets `idle` to false for every consumer. To fake or replace the battery read, pass `batteryState:` instead of calling `Battery()` yourself. |
 | `await power.charging`, read `power.idle` synchronously | `charging` asks the platform; `idle` is cached after `start()`. |
 | Pass `television: () => isTelevision` on Android TV | A batteryless TV reports `unknown`, which reads as not charging forever. |
 | Use `WindowFullscreen.instance`, add and remove a listener, never `dispose()` it, and gate the control on `available` | The channel takes one handler, and disposing the shared instance leaves every other reader on a disposed notifier. Non-macOS platforms send nothing. |
@@ -121,7 +120,7 @@ Rules for an agent writing code against this package. Each one is a mistake the 
 
 ## Dependencies
 
-`battery_plus` for the battery state (one `Battery()` per process, held by `DevicePower`) and `flutter_inactive_timer` for the desktop idle clock, loaded through a conditional export so `dart:ffi` never reaches the web compiler. The web has no system-wide input clock. `WindowFullscreen` uses the Flutter SDK only.
+`battery_plus` for the battery state (`Battery()` is a singleton in battery_plus 7) and `flutter_inactive_timer` for the desktop idle clock, loaded through a conditional export so `dart:ffi` never reaches the web compiler. The web has no system-wide input clock. `WindowFullscreen` uses the Flutter SDK only.
 
 ## Links
 
