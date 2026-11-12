@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-While the package is in alpha (`0.0.x`), only the latest published version receives fixes.
+Only the latest published version receives fixes.
 
 ## Reporting a Vulnerability
 

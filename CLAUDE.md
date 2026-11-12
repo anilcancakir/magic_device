@@ -2,7 +2,7 @@
 
 Device signals for Flutter apps and the Magic Framework: mains power and viewer-away (`DevicePower`, Dart only) and the macOS window fullscreen state (`WindowFullscreen`, backed by this package's own macOS plugin, `MagicDevicePlugin`).
 
-**Version:** 0.0.1 · **Dart:** >=3.6.0 · **Flutter:** >=3.27.0
+**Version:** 0.0.2 · **Dart:** >=3.6.0 · **Flutter:** >=3.27.0
 
 ## Commands
 
@@ -38,11 +38,12 @@ example/                  # macOS app: toggles the window and logs each notifica
 
 ## Post-Change Checklist
 
-After ANY source code change, sync **before committing**:
+After ANY source code change, sync **before committing**. A change is not done while one of these is stale:
 
 1. **`CHANGELOG.md`**: Add entry under `[Unreleased]` section
-2. **`README.md`**: Update if features, API, or usage changes
-3. **`CLAUDE.md`**: Update the architecture tree when files move
+2. **`README.md`, `llms.txt` and the `doc/` pages (when present)**: Update if features, API, or usage changes
+3. **`skills/magic-device/SKILL.md`**: Update when the API, a rule or a gotcha changes; its `version:` moves with the release, and the publish check compares it with the tag
+4. **`CLAUDE.md`**: Update the architecture tree when files move
 
 ## Development Flow (TDD)
 
@@ -84,3 +85,5 @@ The first publish (0.0.1) is a manual `flutter pub publish`, since tag-triggered
 ## CI
 
 - `ci.yml`: push/PR → `flutter pub get` → `flutter analyze --no-fatal-infos` → `dart format --set-exit-if-changed` → `flutter test --coverage` → codecov upload
+- `changelog.yml`: a PR that changes `lib/` or `macos/` must also change `CHANGELOG.md`; Dependabot, `release:` PRs and the `skip-changelog` label are exempt
+- `publish.yml`: tag → version stamps (tag, pubspec, podspec, skill) → analyze, format, test, dry-run, pana 160/160, changelog section → OIDC publish → GitHub Release
