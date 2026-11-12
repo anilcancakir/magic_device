@@ -126,7 +126,7 @@ Rules for an agent writing code against this package. Each one is a mistake the 
 ## Links
 
 - [API reference](https://pub.dev/documentation/magic_device/latest/)
-- [llms.txt](llms.txt) for AI coding agents
+- [llms.txt](llms.txt) and the [agent skill](skills/magic-device/SKILL.md) for AI coding agents: `npx skills add anilcancakir/magic_device`
 - [Changelog](CHANGELOG.md)
 - [Report an issue](https://github.com/anilcancakir/magic_device/issues)
 - [Security policy](SECURITY.md)
