@@ -1,9 +1,10 @@
 name: magic_device
-description: Device signals for Flutter, whether the device is on mains power, whether the viewer is away, and the macOS window fullscreen state.
+description: "Device signals for Flutter: whether the device is on mains power, whether the viewer is away, and the macOS window fullscreen state."
 version: 0.0.1
-homepage: https://magic.fluttersdk.com/device
-repository: https://github.com/fluttersdk/magic_device
-issue_tracker: https://github.com/fluttersdk/magic_device/issues
+homepage: https://anilcancakir.com/magic_device
+documentation: https://anilcancakir.com/magic_device/docs
+repository: https://github.com/anilcancakir/magic_device
+issue_tracker: https://github.com/anilcancakir/magic_device/issues
 
 topics:
   - battery

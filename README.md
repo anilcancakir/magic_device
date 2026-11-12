@@ -1,13 +1,28 @@
 # Magic Device
 
 [![pub.dev version](https://img.shields.io/pub/v/magic_device.svg)](https://pub.dev/packages/magic_device)
-[![CI Status](https://img.shields.io/github/actions/workflow/status/fluttersdk/magic_device/ci.yml?branch=main&label=CI)](https://github.com/fluttersdk/magic_device/actions/workflows/ci.yml)
+[![CI Status](https://img.shields.io/github/actions/workflow/status/anilcancakir/magic_device/ci.yml?branch=master&label=CI)](https://github.com/anilcancakir/magic_device/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/anilcancakir/magic_device/graph/badge.svg)](https://codecov.io/gh/anilcancakir/magic_device)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![pub points](https://img.shields.io/pub/points/magic_device)](https://pub.dev/packages/magic_device/score)
 
-Device signals for Flutter apps: whether the device is on mains power, whether the viewer is away, and the macOS window fullscreen state.
+Know when it is safe to run the heavy job. `magic_device` tells a Flutter app whether the device is on mains power, whether the viewer is away, and whether the macOS window is fullscreen. One import, no setup.
 
-> **Alpha**: `magic_device` is under active development. APIs may change between minor versions until `1.0.0`.
+> [!NOTE]
+> Alpha. APIs may change between minor versions until `1.0.0`.
+
+## At a glance
+
+| | |
+|---|---|
+| Package | [`magic_device`](https://pub.dev/packages/magic_device) |
+| Install | `flutter pub add magic_device` |
+| Import | `package:magic_device/magic_device.dart` |
+| Entry points | `DevicePower` (mains power, viewer away), `WindowFullscreen` (macOS window state) |
+| Platforms | `DevicePower` is plain Dart over `battery_plus` with no native code of its own; system-wide idle on macOS and Windows only. `WindowFullscreen` is macOS only and reports `available == false` elsewhere. |
+| Requires | Dart >=3.6, Flutter >=3.27 |
+| Dependencies | `battery_plus`, `flutter_inactive_timer`; `WindowFullscreen` uses the Flutter SDK only |
+| License | MIT |
 
 ## Install
 
@@ -47,7 +62,7 @@ A batteryless Android TV reports `unknown`, which would read as not charging for
 
 ### Testing
 
-Every platform read is a constructor parameter: `batteryState`, `idleDuration`, `platform` and `television`.
+Every platform read except the app lifecycle is a constructor parameter: `batteryState`, `idleDuration`, `platform` and `television`. Drive the lifecycle through the test binding.
 
 ## WindowFullscreen
 
@@ -79,6 +94,30 @@ Use the one `instance`: the channel takes one handler. A view adds and removes a
 
 The `example/` app toggles the window from a button and logs each notification in order.
 
+## For AI coding agents
+
+Rules for an agent writing code against this package. Each one is a mistake the maintainers already made once.
+
+| Do | Because |
+|----|---------|
+| Import only `package:magic_device/magic_device.dart` | Everything under `src/` is private. |
+| Use `DevicePower.instance`, or build one `DevicePower(...)` when you need to inject a reader; let one component own `start()` and `stop()` | `instance` is shared and `stop()` has no reference count: it resets `idle` to false for every consumer. It already holds the process's one `Battery()`, so never construct a `Battery()` yourself: a second instance steals the first one's EventChannel subscription. |
+| `await power.charging`, read `power.idle` synchronously | `charging` asks the platform; `idle` is cached after `start()`. |
+| Pass `television: () => isTelevision` on Android TV | A batteryless TV reports `unknown`, which reads as not charging forever. |
+| Use `WindowFullscreen.instance`, add and remove a listener, never `dispose()` it, and gate the control on `available` | The channel takes one handler, and disposing the shared instance leaves every other reader on a disposed notifier. Non-macOS platforms send nothing. |
+| Call `WindowFullscreen.resetInstance()` in `tearDown`; inject the four `DevicePower` readers in tests | No mocking library is needed. |
+
 ## Dependencies
 
 `battery_plus` for the battery state (one `Battery()` per process, held by `DevicePower`) and `flutter_inactive_timer` for the desktop idle clock, loaded through a conditional export so `dart:ffi` never reaches the web compiler. The web has no system-wide input clock. `WindowFullscreen` uses the Flutter SDK only.
+
+## Links
+
+- [API reference](https://pub.dev/documentation/magic_device/latest/)
+- [Changelog](CHANGELOG.md)
+- [Report an issue](https://github.com/anilcancakir/magic_device/issues)
+- [Security policy](SECURITY.md)
+
+## License
+
+MIT, see [LICENSE](LICENSE). Built by [Anılcan Çakır](https://anilcancakir.com).

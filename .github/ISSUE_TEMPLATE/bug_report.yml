@@ -1,0 +1,66 @@
+name: Bug Report
+description: Report a bug in magic_device
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. A bug is easier to fix when it names the platform and
+        the signal that was wrong: `DevicePower.charging`, `DevicePower.idle` or
+        `WindowFullscreen`.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What went wrong?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: |
+        For example:
+        1. Create `DevicePower()` and call `start()`
+        2. Unplug the charger
+        3. Read `await power.charging`
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Android
+        - iOS
+        - macOS
+        - Windows
+        - Linux
+        - Web
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: magic_device Version
+      placeholder: "0.0.1"
+    validations:
+      required: true
+
+  - type: textarea
+    id: flutter-doctor
+    attributes:
+      label: flutter doctor -v
+      render: shell
