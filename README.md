@@ -1,13 +1,28 @@
 # Magic Device
 
 [![pub.dev version](https://img.shields.io/pub/v/magic_device.svg)](https://pub.dev/packages/magic_device)
-[![CI Status](https://img.shields.io/github/actions/workflow/status/fluttersdk/magic_device/ci.yml?branch=main&label=CI)](https://github.com/fluttersdk/magic_device/actions/workflows/ci.yml)
+[![CI Status](https://img.shields.io/github/actions/workflow/status/anilcancakir/magic_device/ci.yml?branch=main&label=CI)](https://github.com/anilcancakir/magic_device/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/anilcancakir/magic_device/graph/badge.svg)](https://codecov.io/gh/anilcancakir/magic_device)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![pub points](https://img.shields.io/pub/points/magic_device)](https://pub.dev/packages/magic_device/score)
 
-Device signals for Flutter apps: whether the device is on mains power, whether the viewer is away, and the macOS window fullscreen state.
+Know when it is safe to run the heavy job. `magic_device` tells a Flutter app whether the device is on mains power, whether the viewer is away, and whether the macOS window is fullscreen. One import, no setup.
 
-> **Alpha**: `magic_device` is under active development. APIs may change between minor versions until `1.0.0`.
+> [!NOTE]
+> Alpha. APIs may change between minor versions until `1.0.0`.
+
+## At a glance
+
+| | |
+|---|---|
+| Package | [`magic_device`](https://pub.dev/packages/magic_device) |
+| Install | `flutter pub add magic_device` |
+| Import | `package:magic_device/magic_device.dart` |
+| Entry points | `DevicePower` (mains power, viewer away), `WindowFullscreen` (macOS window state) |
+| Platforms | `DevicePower` runs everywhere Flutter does; system-wide idle on macOS and Windows only. `WindowFullscreen` is macOS only and reports `available == false` elsewhere. |
+| Requires | Dart >=3.6, Flutter >=3.27 |
+| Dependencies | `battery_plus`, `flutter_inactive_timer`; `WindowFullscreen` uses the Flutter SDK only |
+| License | MIT |
 
 ## Install
 
@@ -75,10 +90,32 @@ The state follows the window, not the calls: the green button, Esc and the Windo
 
 `toggle()` is ignored while a press or an animation is under way, so a double press cannot undo itself. It throws a `PlatformException` (`no_window`) when the Flutter view is not in a window, and that refusal releases the press. AppKit silently ignores the call for an app that is not frontmost; when the window posts nothing within `WindowFullscreen.pressTimeout` (1 second), the press ends and the window's state is read again.
 
-Use the one `instance`: the channel takes one handler. A view adds and removes a listener and never disposes it. A test calls `WindowFullscreen.resetInstance()` in `tearDown`.
-
 The `example/` app toggles the window from a button and logs each notification in order.
+
+## For AI coding agents
+
+Rules for an agent writing code against this package. Each one is a mistake the maintainers already made once.
+
+| Do | Because |
+|----|---------|
+| Import only `package:magic_device/magic_device.dart` | Everything under `src/` is private. |
+| Keep one `DevicePower` per app: `start()` once, `stop()` when done | A second `Battery()` instance steals the first one's EventChannel subscription. |
+| `await power.charging`, read `power.idle` synchronously | `charging` asks the platform; `idle` is cached after `start()`. |
+| Pass `television: () => isTelevision` on Android TV | A batteryless TV reports `unknown`, which reads as not charging forever. |
+| Use `WindowFullscreen.instance` and gate the control on `available` | The channel takes one handler, and non-macOS platforms send nothing. |
+| Call `WindowFullscreen.resetInstance()` in `tearDown`; inject the four `DevicePower` readers in tests | No mocking library is needed. |
 
 ## Dependencies
 
 `battery_plus` for the battery state (one `Battery()` per process, held by `DevicePower`) and `flutter_inactive_timer` for the desktop idle clock, loaded through a conditional export so `dart:ffi` never reaches the web compiler. The web has no system-wide input clock. `WindowFullscreen` uses the Flutter SDK only.
+
+## Links
+
+- [API reference](https://pub.dev/documentation/magic_device/latest/)
+- [Changelog](CHANGELOG.md)
+- [Report an issue](https://github.com/anilcancakir/magic_device/issues)
+- [Security policy](SECURITY.md)
+
+## License
+
+MIT, see [LICENSE](LICENSE). Built by [Anılcan Çakır](https://anilcancakir.com).
