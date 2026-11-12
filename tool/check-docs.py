@@ -11,8 +11,9 @@ developer machine:
 
 Surfaces checked:
 
-1. Page structure: exactly one H1, and it is the page's opening line, which is
-   the file shape `.claude/rules/docs.md` documents.
+1. Page layout and structure: `doc/<section>/<page>.md` with lowercase slug
+   names, exactly one H1, and it is the page's opening line, which is the file
+   shape `.claude/rules/docs.md` documents.
 2. Relative `.md` links resolve to a file that exists inside `doc/`.
 3. Fragments (`#section`, both same-file and cross-file) resolve to an explicit
    `<a name>` anchor or a heading slug in the target page.
@@ -60,6 +61,7 @@ ANCHOR = re.compile(r'<a\s+name="([^"]+)"')
 INLINE_LINK = re.compile(r'\]\(\s*([^)\s]+)')
 REFERENCE_LINK = re.compile(r'^\[[^\]]+\]:\s*(\S+)')
 SITE_URL = re.compile(re.escape(SITE_ORIGIN) + r'/[^\s)>"\']+')
+PAGE_NAME = re.compile(r'[a-z0-9-]+')
 
 
 class Issue(NamedTuple):
@@ -153,14 +155,44 @@ def site_url_to_doc(url: str) -> Path | None:
         return None
 
     path = unquote(parts.path)
-    if not path.startswith(DOC_URL_PREFIX) or not path.endswith('.md'):
+    if not path.startswith(DOC_URL_PREFIX):
         return None
 
-    segments = path[len(DOC_URL_PREFIX):].split('/')
+    segments = [segment for segment in path[len(DOC_URL_PREFIX):].split('/') if segment]
     if segments and VERSION_SEGMENT.match(segments[0]):
         segments = segments[1:]
 
-    return DOC_ROOT.joinpath(*segments) if segments else None
+    if not segments:
+        return None
+
+    if path.endswith('.md'):
+        return DOC_ROOT.joinpath(*segments)
+
+    # An extensionless `<section>/<page>` URL is a rendered page backed by
+    # `<section>/<page>.md`. A single segment is a section landing page the site
+    # generates, and a dotted name is a generated file such as llms.txt.
+    if len(segments) == 2 and '.' not in segments[-1]:
+        return DOC_ROOT.joinpath(segments[0], f'{segments[1]}.md')
+
+    return None
+
+
+def check_layout(path: Path) -> list[Issue]:
+    """Require `doc/<section>/<page>.md` with lowercase slug names.
+
+    The docs site routes `<section>/<page>` with `[a-z0-9-]+` slugs and skips any
+    file at another depth or with another name, so such a page passes every other
+    check here and never publishes.
+    """
+    parts = path.relative_to(DOC_ROOT).parts
+
+    if len(parts) != 2:
+        return [Issue(path, 1, 'doc pages live at doc/<section>/<page>.md; the docs site skips any other depth')]
+
+    if not all(PAGE_NAME.fullmatch(name) for name in (parts[0], Path(parts[1]).stem)):
+        return [Issue(path, 1, 'section and page names are lowercase [a-z0-9-]; the docs site skips any other name')]
+
+    return []
 
 
 def check_structure(path: Path, raw: str, body: str) -> list[Issue]:
@@ -288,10 +320,11 @@ def main() -> int:
         issues += check_links(path, body, fragments)
         issues += check_site_urls(path, body)
 
-    # 3. The doc-only surfaces: title shape and anchor reachability.
+    # 3. The doc-only surfaces: layout, title shape and anchor reachability.
     for path in doc_pages:
         raw = path.read_text(encoding='utf-8')
         body = blank_code(raw)
+        issues += check_layout(path)
         issues += check_structure(path, raw, body)
         issues += check_anchor_reachability(path, body)
 

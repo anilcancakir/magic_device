@@ -36,7 +36,7 @@ One-line lead: what the page covers and when to use it.
 - Layout is `doc/<section>/<page>.md`: two levels, lowercase `[a-z0-9-]` names, sections `getting-started`, `basics`, `guides`. No `doc/index.md`; the site skips files outside that shape.
 - Put `<a name="kebab-slug"></a>` immediately before every `##` and list the slug in the ToC under the lead paragraph.
 - Open with the answer, then explain: a Quick Reference table or a minimal example first. State defaults, units and failure modes in the page, and end a basics page with a Gotchas table of mistakes and fixes.
-- Code fences are `dart`, with imports, short, realistic and copy-pasteable. Tables are left-aligned (`:-----`) with every identifier in backticks.
+- Dart samples use `dart` fences and shell commands `bash`; a sample carries its imports, stays short and realistic, and runs as written (compile each one before you commit it). Tables are left-aligned (`:-----`) with every identifier in backticks.
 - Links are relative `.md` paths inside `doc/` only; a target outside `doc/` is never published. Fragments resolve against explicit anchors or the GitHub slug (punctuation drops, each space becomes one hyphen: `## Date + Time` is `#date--time`).
 - Edit in place: keep the structure of sections you are not changing, and match the style of the neighbouring section for a new one.
 
@@ -46,4 +46,4 @@ One-line lead: what the page covers and when to use it.
 
 ## Verify
 
-Run `python3 tool/check-docs.py` before reporting doc work done. It checks page structure, relative links, fragments, ToC-reachable anchors and docs-site URLs, needs no network or Flutter toolchain, and `docs-link-check.yml` runs it on every pull request.
+Run `python3 tool/check-docs.py` before reporting doc work done.
