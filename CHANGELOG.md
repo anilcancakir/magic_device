@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **The repository moved to `anilcancakir/magic_device`.** `homepage`, `documentation`, `repository` and `issue_tracker` in `pubspec.yaml` point at the new owner, and the LICENSE holder is now Anılcan Çakır. The package name, the API and the version line are unchanged.
+- **The publish workflow validates more and releases itself.** It runs `flutter pub publish --dry-run` before publishing and creates the GitHub Release from the matching CHANGELOG section after pub.dev accepts the tag. Every action is pinned by commit SHA and the workflows run with read-only permissions by default.
+
+### Added
+- `SECURITY.md`, issue forms for bugs and feature requests, and a pull request template.
+
 ## [0.0.1] - 2026-10-29
 
 ### Added
