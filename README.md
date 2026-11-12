@@ -90,6 +90,8 @@ The state follows the window, not the calls: the green button, Esc and the Windo
 
 `toggle()` is ignored while a press or an animation is under way, so a double press cannot undo itself. It throws a `PlatformException` (`no_window`) when the Flutter view is not in a window, and that refusal releases the press. AppKit silently ignores the call for an app that is not frontmost; when the window posts nothing within `WindowFullscreen.pressTimeout` (1 second), the press ends and the window's state is read again.
 
+Use the one `instance`: the channel takes one handler. A view adds and removes a listener and never disposes it. A test calls `WindowFullscreen.resetInstance()` in `tearDown`.
+
 The `example/` app toggles the window from a button and logs each notification in order.
 
 ## For AI coding agents
@@ -102,7 +104,7 @@ Rules for an agent writing code against this package. Each one is a mistake the 
 | Use `DevicePower.instance`, or build one `DevicePower(...)` when you need to inject a reader; let one component own `start()` and `stop()` | `instance` is shared and `stop()` has no reference count: it resets `idle` to false for every consumer. It already holds the process's one `Battery()`, so never construct a `Battery()` yourself: a second instance steals the first one's EventChannel subscription. |
 | `await power.charging`, read `power.idle` synchronously | `charging` asks the platform; `idle` is cached after `start()`. |
 | Pass `television: () => isTelevision` on Android TV | A batteryless TV reports `unknown`, which reads as not charging forever. |
-| Use `WindowFullscreen.instance` and gate the control on `available` | The channel takes one handler, and non-macOS platforms send nothing. |
+| Use `WindowFullscreen.instance`, add and remove a listener, never `dispose()` it, and gate the control on `available` | The channel takes one handler, and disposing the shared instance leaves every other reader on a disposed notifier. Non-macOS platforms send nothing. |
 | Call `WindowFullscreen.resetInstance()` in `tearDown`; inject the four `DevicePower` readers in tests | No mocking library is needed. |
 
 ## Dependencies
