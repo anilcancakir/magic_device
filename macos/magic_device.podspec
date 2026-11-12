@@ -5,7 +5,7 @@ Pod::Spec.new do |s|
   s.description      = <<-DESC
 Answers the magic_device/window channel for the window that holds the Flutter view.
                        DESC
-  s.homepage         = 'https://magic.fluttersdk.com/device'
+  s.homepage         = 'https://anilcancakir.com/magic_device'
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'Anılcan Çakır' => 'anilcan.cakir@gmail.com' }
 
