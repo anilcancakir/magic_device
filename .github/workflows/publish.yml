@@ -59,10 +59,10 @@ jobs:
       - name: Validate publish archive
         run: flutter pub publish --dry-run
 
-      # pub.dev scores 160 points. A homepage or documentation URL that does
-      # not answer a HEAD request, or a repository URL that does not match the
-      # default branch's pubspec.yaml, costs points, so the release stops here
-      # until the pages are live.
+      # pub.dev scores 160 points and a release that loses any of them stops
+      # here, before the irreversible publish. A repository URL that does not
+      # match the default branch's pubspec.yaml costs the 10 points of "valid
+      # pubspec"; an unreachable homepage or documentation URL only warns.
       - name: Require full pub.dev points (pana)
         run: |
           dart pub global activate pana 0.23.13
