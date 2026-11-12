@@ -64,7 +64,7 @@ power.stop();
 | Signal | Meaning |
 |--------|---------|
 | `charging` | On mains power. `full`, `charging` and `connectedNotCharging` count; `discharging` and `unknown` do not. A platform with no battery implementation answers false. |
-| `idle` | Away for at least `DevicePower.idleThreshold` (2 minutes). macOS and Windows read the system-wide last-input clock every `pollInterval` (30 seconds); every other platform reports idle whenever the app is not in front, read from the current lifecycle state at `start()` and followed from there. |
+| `idle` | Away. Native macOS and Windows read the system-wide last-input clock every `pollInterval` (30 seconds) and report idle after `DevicePower.idleThreshold` (2 minutes) without input. Every other platform, web included, reports idle whenever the app lifecycle is anything but `resumed`, immediately and with no threshold, read at `start()` and followed from there. |
 
 Nothing is collected until `start()`, and `stop()` resets `idle` to false.
 

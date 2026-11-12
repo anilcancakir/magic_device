@@ -123,7 +123,7 @@ void main() {
 
 Reset the instance first, then clear the mock handler, then the override. Resetting the override first leaves the channel handler installed, because the reader only clears its handler while `available` is true.
 
-That `tearDown` order is for plain `test()`. Inside `testWidgets` the binding checks that every foundation debug variable is unset at the end of the test body, before `tearDown` runs, so with the override set in `setUp` end the body with `WindowFullscreen.resetInstance();` and `debugDefaultTargetPlatformOverride = null;`, or use `variant: TargetPlatformVariant.only(TargetPlatform.macOS)`, which sets and resets the override for you.
+That `tearDown` order is for plain `test()`. Inside `testWidgets` the binding checks that every foundation debug variable is unset at the end of the test body, before `tearDown` runs, so with the override set in `setUp` end the body with `WindowFullscreen.resetInstance();` and `debugDefaultTargetPlatformOverride = null;`. If you use `variant: TargetPlatformVariant.only(TargetPlatform.macOS)` instead, leave the override out of `setUp` (the variant sets it and clears it before `tearDown`) and still end the body with `WindowFullscreen.resetInstance();`, so the reader drops its channel handler while the platform is macOS.
 
 The four notifications the plugin posts are `willEnterFullScreen`, `didEnterFullScreen`, `willExitFullScreen` and `didExitFullScreen`.
 

@@ -35,7 +35,7 @@ Nothing is collected until `start()`; `stop()` resets `idle` to false.
 
 ## API
 
-- `DevicePower`: `charging` (async, on mains power: `full`, `charging` and `connectedNotCharging` count; `discharging`, `unknown` and a platform without a battery implementation do not), `idle` (sync, cached after `start()`: away for `idleThreshold`, 2 minutes), `start()`, `stop()`. Constructor readers for tests: `batteryState`, `idleDuration`, `platform`, `television`.
+- `DevicePower`: `charging` (async, on mains power: `full`, `charging` and `connectedNotCharging` count; `discharging`, `unknown` and a platform without a battery implementation do not), `idle` (sync, cached after `start()`: on native macOS and Windows no input for `idleThreshold`, 2 minutes; everywhere else any app lifecycle state but `resumed`, immediately and with no threshold), `start()`, `stop()`. Constructor readers for tests: `batteryState`, `idleDuration`, `platform`, `television`.
 - `WindowFullscreen`: `available` (true on macOS only), `active` (as the window last confirmed), `target` (moves on AppKit's will-notification), `transitioning`, `toggle()`, `pressTimeout` (1 second), `resetInstance()` for tests. It is a `ChangeNotifier`: add and remove a listener, never dispose the shared instance.
 - `BatteryState`: re-exported from `battery_plus` so a custom `batteryState` reader names the type without a direct dependency.
 

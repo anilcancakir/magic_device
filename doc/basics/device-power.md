@@ -75,6 +75,9 @@ The desktop poll is not guarded: if the OS idle read throws, the error surfaces 
 A batteryless Android TV reports `unknown`, which would read as not charging forever and keep the gate closed on a box that never runs on anything else. Pass a `television` predicate and `charging` answers `true` without asking the platform.
 
 ```dart
+import 'package:magic_device/magic_device.dart';
+
+// isTelevision is your own detection, for example a platform channel or a build flavour.
 final DevicePower power = DevicePower(television: () => isTelevision);
 ```
 
