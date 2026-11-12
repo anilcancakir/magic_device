@@ -16,6 +16,8 @@ jobs:
   validate:
     name: Validate
     runs-on: ubuntu-latest
+    outputs:
+      notes: ${{ steps.notes.outputs.body }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -42,25 +44,9 @@ jobs:
       - name: Validate publish archive
         run: flutter pub publish --dry-run
 
-  publish:
-    needs: validate
-    permissions:
-      id-token: write # Required for authentication using OIDC
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@6afc89df92d6eb3834022f73cd65adc8cdfcb92d # v1.8.1
-
-  github-release:
-    name: GitHub Release
-    needs: publish
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write # Required to create the GitHub Release
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      # A tag without a matching CHANGELOG.md section fails here instead of
-      # shipping a release with empty notes.
+      # Runs before the irreversible publish: a tag without a `## [<version>]`
+      # section in CHANGELOG.md stops here instead of shipping a version with
+      # no GitHub Release.
       - name: Extract changelog section
         id: notes
         env:
@@ -72,7 +58,7 @@ jobs:
             flag { print }
           ' CHANGELOG.md)"
           if [ -z "$(printf '%s' "$notes" | tr -d '[:space:]')" ]; then
-            echo "::error::No CHANGELOG.md section found for $VERSION; refusing to create a release with empty notes." >&2
+            echo "::error::No CHANGELOG.md section found for $VERSION; refusing to publish a version without release notes." >&2
             exit 1
           fi
           {
@@ -81,11 +67,25 @@ jobs:
             echo 'CHANGELOG_EOF'
           } >> "$GITHUB_OUTPUT"
 
+  publish:
+    needs: validate
+    permissions:
+      id-token: write # Required for authentication using OIDC
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@6afc89df92d6eb3834022f73cd65adc8cdfcb92d # v1.8.1
+
+  github-release:
+    name: GitHub Release
+    needs: [validate, publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to create the GitHub Release
+    steps:
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           VERSION: ${{ github.ref_name }}
-          NOTES: ${{ steps.notes.outputs.body }}
+          NOTES: ${{ needs.validate.outputs.notes }}
         run: |
           case "$VERSION" in
             *-*) FLAG="--prerelease" ;;
