@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - `SECURITY.md`, issue forms for bugs and feature requests, and a pull request template.
 - `llms.txt`: the package for an AI coding agent, with setup, the API, platform support and the rules an agent must follow.
+- The README opens with the Magic logo (`.github/magic-logo.svg`) and the centered header every Magic package uses.
 
 ## [0.0.1] - 2026-10-29
 

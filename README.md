@@ -1,12 +1,27 @@
-# Magic Device
+<p align="center">
+  <img src="https://raw.githubusercontent.com/anilcancakir/magic_device/master/.github/magic-logo.svg" width="120" alt="Magic Logo" />
+</p>
 
-[![pub.dev version](https://img.shields.io/pub/v/magic_device.svg)](https://pub.dev/packages/magic_device)
-[![CI Status](https://img.shields.io/github/actions/workflow/status/anilcancakir/magic_device/ci.yml?branch=master&label=CI)](https://github.com/anilcancakir/magic_device/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/anilcancakir/magic_device/graph/badge.svg)](https://codecov.io/gh/anilcancakir/magic_device)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![pub points](https://img.shields.io/pub/points/magic_device)](https://pub.dev/packages/magic_device/score)
+<h1 align="center">Magic Device</h1>
 
-Know when it is safe to run the heavy job. `magic_device` tells a Flutter app whether the device is on mains power, whether the viewer is away, and whether the macOS window is fullscreen. One import, no setup.
+<p align="center">
+  <strong>Know when it is safe to run the heavy job.</strong><br/>
+  Whether the device is on mains power, whether the viewer is away, and whether the macOS window is fullscreen. One import, no setup.
+</p>
+
+<p align="center">
+  <a href="https://pub.dev/packages/magic_device"><img src="https://img.shields.io/pub/v/magic_device.svg" alt="pub package"></a>
+  <a href="https://github.com/anilcancakir/magic_device/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/anilcancakir/magic_device/ci.yml?branch=master&label=CI" alt="CI"></a>
+  <a href="https://codecov.io/gh/anilcancakir/magic_device"><img src="https://codecov.io/gh/anilcancakir/magic_device/graph/badge.svg" alt="codecov"></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
+  <a href="https://pub.dev/packages/magic_device/score"><img src="https://img.shields.io/pub/points/magic_device" alt="pub points"></a>
+</p>
+
+<p align="center">
+  <a href="https://anilcancakir.com/magic_device">Documentation</a> ·
+  <a href="https://pub.dev/packages/magic_device">pub.dev</a> ·
+  <a href="https://github.com/anilcancakir/magic_device/issues">Issues</a>
+</p>
 
 ## At a glance
 
