@@ -54,6 +54,13 @@ Nothing is collected until `start()`; `stop()` forgets both answers.
 - Use `WindowFullscreen.instance` and gate every control on `available`. `toggle()` throws a `PlatformException` (`no_window`) when the Flutter view is not in a window.
 - In tests, inject the readers and call `WindowFullscreen.resetInstance()` in `tearDown`. The app lifecycle is the one read that cannot be injected; drive it through the test binding.
 
+## Docs
+
+- [Installation](https://github.com/anilcancakir/magic_device/blob/master/doc/getting-started/installation.md): requirements, what the package does not need, a three-line check, platform support.
+- [DevicePower](https://github.com/anilcancakir/magic_device/blob/master/doc/basics/device-power.md): charging and idle in depth, televisions, lifecycle ownership, gotchas.
+- [WindowFullscreen](https://github.com/anilcancakir/magic_device/blob/master/doc/basics/window-fullscreen.md): the three readings of the state, toggling, a button recipe, gotchas.
+- [Testing](https://github.com/anilcancakir/magic_device/blob/master/doc/guides/testing.md): injected readers, the lifecycle path, a fake window on the channel.
+
 ## Links
 
 - [README](https://github.com/anilcancakir/magic_device/blob/master/README.md): install, both signals in depth, the agent rules table.

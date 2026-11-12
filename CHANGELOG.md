@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 - **The package is no longer marked alpha.** The README banner and the SECURITY note are gone; the version line continues as `0.0.x`.
 
 ### Added
+- `doc/`: installation, `DevicePower`, `WindowFullscreen` and testing pages in the repository's docs standard, checked by `tool/check-docs.py` and the `Docs Link Check` workflow on every pull request.
 - `SECURITY.md`, issue forms for bugs and feature requests, and a pull request template.
 - A `Changelog` check: a pull request that changes `lib/` or `macos/` must also change `CHANGELOG.md`. Dependabot, `release:` pull requests and the `skip-changelog` label are exempt.
 - `llms.txt`: the package for an AI coding agent, with setup, the API, platform support and the rules an agent must follow.

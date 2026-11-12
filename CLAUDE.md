@@ -12,6 +12,7 @@ Device signals for Flutter apps and the Magic Framework: mains power and viewer-
 | `flutter analyze --no-fatal-infos` | Static analysis |
 | `dart format .` | Format all code |
 | `flutter pub publish --dry-run` | Pre-publish check |
+| `python3 tool/check-docs.py` | Docs structure, links, fragments and ToC anchors; run it after any `doc/` change |
 
 ## Architecture
 
@@ -34,6 +35,9 @@ macos/                    # The macOS plugin, WindowFullscreen's native half
     └── Sources/magic_device/MagicDevicePlugin.swift  # Finds the window holding the Flutter view on each call
 
 example/                  # macOS app: toggles the window and logs each notification
+doc/                      # User docs, published by the docs site: getting-started/, basics/, guides/ (conventions: .claude/rules/docs.md)
+skills/magic-device/      # Agent skill, installed with `npx skills add anilcancakir/magic_device`
+tool/check-docs.py        # Offline docs gate, run by docs-link-check.yml
 ```
 
 ## Post-Change Checklist
@@ -86,4 +90,5 @@ The first publish (0.0.1) is a manual `flutter pub publish`, since tag-triggered
 
 - `ci.yml`: push/PR → `flutter pub get` → `flutter analyze --no-fatal-infos` → `dart format --set-exit-if-changed` → `flutter test --coverage` → codecov upload
 - `changelog.yml`: a PR that changes `lib/` or `macos/` must also change `CHANGELOG.md`; Dependabot, `release:` PRs and the `skip-changelog` label are exempt
+- `docs-link-check.yml`: every PR runs `python3 tool/check-docs.py` and an offline lychee pass; Mondays an external-link pass
 - `publish.yml`: tag → version stamps (tag, pubspec, podspec, skill) → analyze, format, test, dry-run, pana 160/160, changelog section → OIDC publish → GitHub Release
