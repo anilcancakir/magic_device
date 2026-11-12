@@ -23,16 +23,18 @@ jobs:
         with:
           persist-credentials: false
 
-      # The tag, pubspec.yaml and the podspec must name one version, or pub.dev,
-      # the GitHub Release and the macOS pod would each carry a different one.
+      # The tag, pubspec.yaml, the podspec and the agent skill must name one
+      # version, or pub.dev, the GitHub Release, the macOS pod and the skill
+      # would each carry a different one.
       - name: Check version stamps
         env:
           TAG: ${{ github.ref_name }}
         run: |
           pubspec="$(awk '/^version:/ { print $2 }' pubspec.yaml)"
           podspec="$(awk -F"'" '/s\.version/ { print $2 }' macos/magic_device.podspec)"
-          if [ "$TAG" != "$pubspec" ] || [ "$TAG" != "$podspec" ]; then
-            echo "::error::Version mismatch: tag $TAG, pubspec.yaml $pubspec, podspec $podspec." >&2
+          skill="$(awk '/^version:/ { print $2; exit }' skills/magic-device/SKILL.md)"
+          if [ "$TAG" != "$pubspec" ] || [ "$TAG" != "$podspec" ] || [ "$TAG" != "$skill" ]; then
+            echo "::error::Version mismatch: tag $TAG, pubspec.yaml $pubspec, podspec $podspec, skill $skill." >&2
             exit 1
           fi
 
