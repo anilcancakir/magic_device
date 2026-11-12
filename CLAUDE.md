@@ -38,11 +38,12 @@ example/                  # macOS app: toggles the window and logs each notifica
 
 ## Post-Change Checklist
 
-After ANY source code change, sync **before committing**:
+After ANY source code change, sync **before committing**. A change is not done while one of these is stale:
 
 1. **`CHANGELOG.md`**: Add entry under `[Unreleased]` section
-2. **`README.md`**: Update if features, API, or usage changes
-3. **`CLAUDE.md`**: Update the architecture tree when files move
+2. **`README.md`, `llms.txt` and the `doc/` pages (when present)**: Update if features, API, or usage changes
+3. **`skills/magic-device/SKILL.md`**: Update when the API, a rule or a gotcha changes; its `version:` moves with the release, and the publish check compares it with the tag
+4. **`CLAUDE.md`**: Update the architecture tree when files move
 
 ## Development Flow (TDD)
 
