@@ -86,7 +86,7 @@ Every feature, fix, or refactor must go through the red-green-refactor cycle:
 
 1. Open a `release:` PR that bumps `pubspec.yaml`, `macos/magic_device.podspec`, `skills/magic-device/SKILL.md` and the `Version:` line above, and promotes `[Unreleased]` in `CHANGELOG.md`.
 2. After it merges, tag the merge commit with the bare version (`git tag 0.0.3 && git push origin 0.0.3`, no `v`). `publish.yml` runs from the tag; the pub.dev Admin tab holds repository `anilcancakir/magic_device`, tag pattern `{{version}}` and push events only.
-3. A failed `validate` is fixed forward: delete the tag (`git push --delete origin <tag>`), fix it on a PR and tag the new merge commit, because a re-run builds the same commit. If only `github-release` fails after pub.dev accepted the version, use "Re-run failed jobs" (never "Re-run all jobs", where `publish` is rejected as a duplicate) or run `gh release create <tag> --verify-tag --notes-file <file>`.
+3. A failed `validate` is fixed forward: delete the tag (`git push --delete origin <tag>` and `git tag -d <tag>`), fix it on a PR and tag the new merge commit, because a re-run builds the same commit. If only `github-release` fails after pub.dev accepted the version, use "Re-run failed jobs" (never "Re-run all jobs", where `publish` is rejected as a duplicate) or run `gh release create <tag> --title <tag> --latest --verify-tag --notes-file <file>`.
 
 The first publish (0.0.1) was a manual `flutter pub publish`, since tag-triggered OIDC cannot create a package.
 
@@ -95,4 +95,4 @@ The first publish (0.0.1) was a manual `flutter pub publish`, since tag-triggere
 - `ci.yml`: push/PR → `flutter pub get` → `flutter analyze --no-fatal-infos` → `dart format --set-exit-if-changed` → `flutter test --coverage` → codecov upload
 - `changelog.yml`: a PR that changes `lib/` or `macos/` must also change `CHANGELOG.md`; Dependabot, `release:` PRs and the `skip-changelog` label are exempt
 - `docs-link-check.yml`: every PR runs `python3 tool/check-docs.py` and an offline lychee pass; Mondays an external-link pass
-- `publish.yml`: tag → version stamps (tag, pubspec, podspec, skill) → analyze, format, test, dry-run, pana 160/160, changelog section → OIDC publish → GitHub Release
+- `publish.yml`: tag on master → version stamps (tag, pubspec, podspec, skill) → analyze, format, test, dry-run, pana 160/160, changelog section → OIDC publish → GitHub Release
