@@ -85,3 +85,5 @@ The first publish (0.0.1) is a manual `flutter pub publish`, since tag-triggered
 ## CI
 
 - `ci.yml`: push/PR → `flutter pub get` → `flutter analyze --no-fatal-infos` → `dart format --set-exit-if-changed` → `flutter test --coverage` → codecov upload
+- `changelog.yml`: a PR that changes `lib/` or `macos/` must also change `CHANGELOG.md`; Dependabot, `release:` PRs and the `skip-changelog` label are exempt
+- `publish.yml`: tag → version stamps (tag, pubspec, podspec, skill) → analyze, format, test, dry-run, pana 160/160, changelog section → OIDC publish → GitHub Release

@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - `SECURITY.md`, issue forms for bugs and feature requests, and a pull request template.
+- A `Changelog` check: a pull request that changes `lib/` or `macos/` must also change `CHANGELOG.md`. Dependabot, `release:` pull requests and the `skip-changelog` label are exempt.
 - `llms.txt`: the package for an AI coding agent, with setup, the API, platform support and the rules an agent must follow.
 - `skills/magic-device`: an agent skill for the package, installed with `npx skills add anilcancakir/magic_device`. It stays out of the pub.dev archive.
 - The README opens with the Magic logo (`.github/magic-logo.svg`) and the centered header every Magic package uses.
