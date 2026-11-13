@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 ## [0.0.2] - 2026-11-13
 
 ### Changed
-- **The repository moved to `anilcancakir/magic_device`.** `homepage`, `documentation`, `repository` and `issue_tracker` in `pubspec.yaml` point at the new owner, and the LICENSE holder is now Anılcan Çakır. The package name, the API and the version line are unchanged.
+- **The repository moved to `anilcancakir/magic_device`.** `homepage` (the package landing), `repository` and `issue_tracker` in `pubspec.yaml` point at the new owner, and the `documentation` key is gone (the landing links the docs, as for wind and magic), and the LICENSE holder is now Anılcan Çakır. The package name, the API and the version line are unchanged.
 - **The default branch is `master`**, protected: a pull request and green `Lint & Test` and `Changelog` checks are required, force pushes and deletion are blocked.
 - **The publish workflow validates more and releases itself.** It runs `flutter pub publish --dry-run` and requires a matching CHANGELOG section before publishing, then creates the GitHub Release from that section once pub.dev accepts the tag. Every action is pinned by commit SHA and the workflows run with read-only permissions by default.
 
