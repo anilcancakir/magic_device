@@ -50,6 +50,7 @@ import 'package:magic_device/magic_device.dart';
 Gate a heavy job on mains power and an away viewer:
 
 ```dart
+// isTelevision is the host's own detection.
 final DevicePower power = DevicePower(television: () => isTelevision);
 power.start();
 
