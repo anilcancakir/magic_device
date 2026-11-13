@@ -32,7 +32,7 @@ One-line lead: what the page covers and when to use it.
 
 ## Rules
 
-- One `#` per file and it is the first line, with the lead paragraph right after it. Never skip heading levels.
+- One `#` per file and it is the first line, with a one-sentence lead right after it that says what the page is: the site copies it as the page description in its generated `llms.txt`. Never skip heading levels.
 - Layout is `doc/<section>/<page>.md`: two levels, lowercase `[a-z0-9-]` names, sections `getting-started`, `basics`, `guides`. No `doc/index.md`; the site skips files outside that shape.
 - Put `<a name="kebab-slug"></a>` immediately before every `##` and list the slug in the ToC under the lead paragraph.
 - Open with the answer, then explain: a Quick Reference table or a minimal example first. State defaults, units and failure modes in the page, and end a basics page with a Gotchas table of mistakes and fixes.

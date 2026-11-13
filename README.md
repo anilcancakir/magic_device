@@ -51,6 +51,7 @@ Two hardware signals a background job can gate on: whether the device draws from
 ```dart
 import 'package:magic_device/magic_device.dart';
 
+// isTelevision is your own detection, for example a platform channel or a build flavour.
 final DevicePower power = DevicePower(television: () => isTelevision);
 power.start();
 

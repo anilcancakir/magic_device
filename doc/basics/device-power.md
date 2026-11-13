@@ -17,6 +17,7 @@ Know whether the device is on mains power and whether the viewer is away, so a h
 ```dart
 import 'package:magic_device/magic_device.dart';
 
+// isTelevision is your own detection, see Televisions below.
 final DevicePower power = DevicePower(television: () => isTelevision);
 power.start();
 

@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- The analyzer no longer suppresses `unintended_html_in_doc_comment`; the package analyzes clean without it.
+- Doc page leads are one sentence that says what the page is (the docs site copies it into its generated `llms.txt`), and the samples that use `isTelevision` say it is the host's own detection.
+
 ## [0.0.2] - 2026-11-13
 
 ### Changed
