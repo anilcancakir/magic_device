@@ -55,10 +55,10 @@ Nothing is collected until `start()`; `stop()` resets `idle` to false.
 
 ## Docs
 
-- [Installation](https://github.com/anilcancakir/magic_device/blob/master/doc/getting-started/installation.md): requirements, what the package does not need, a short check, platform support.
-- [DevicePower](https://github.com/anilcancakir/magic_device/blob/master/doc/basics/device-power.md): charging and idle in depth, televisions, lifecycle ownership, gotchas.
-- [WindowFullscreen](https://github.com/anilcancakir/magic_device/blob/master/doc/basics/window-fullscreen.md): the three readings of the state, toggling, a button recipe, gotchas.
-- [Testing](https://github.com/anilcancakir/magic_device/blob/master/doc/guides/testing.md): injected readers, the lifecycle path, a fake window on the channel.
+- [Installation](https://anilcancakir.com/magic_device/getting-started/installation.md): requirements, what the package does not need, a short check, platform support.
+- [DevicePower](https://anilcancakir.com/magic_device/basics/device-power.md): charging and idle in depth, televisions, lifecycle ownership, gotchas.
+- [WindowFullscreen](https://anilcancakir.com/magic_device/basics/window-fullscreen.md): the three readings of the state, toggling, a button recipe, gotchas.
+- [Testing](https://anilcancakir.com/magic_device/guides/testing.md): injected readers, the lifecycle path, a fake window on the channel.
 
 ## Links
 
