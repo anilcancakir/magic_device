@@ -34,11 +34,12 @@ from pathlib import Path
 from typing import Iterator, NamedTuple
 from urllib.parse import unquote, urlsplit
 
-# The docs site serves a page at /magic_device/<section>/<page> and its raw
-# markdown, for LLMs, at /magic_device/<section>/<page>.md.
+# The docs site serves a page at /magic_device/docs/<section>/<page> and its raw
+# markdown, for LLMs, at the same URL with .md (site routes/docs.php). The
+# package landing, /magic_device, sits outside this prefix.
 PACKAGE_SLUG = 'magic_device'
 SITE_ORIGIN = 'https://anilcancakir.com'
-DOC_URL_PREFIX = f'/{PACKAGE_SLUG}/'
+DOC_URL_PREFIX = f'/{PACKAGE_SLUG}/docs/'
 
 DOC_ROOT = Path('doc')
 
@@ -51,7 +52,7 @@ EXTRA_LINK_FILES = (
     Path('llms.txt'),
 )
 
-# A versioned docs URL such as /magic_device/0.0.2/<section>/<page>.md
+# A versioned docs URL such as /magic_device/docs/0.0.2/<section>/<page>.md
 # resolves against the same doc tree as the unversioned one.
 VERSION_SEGMENT = re.compile(r'^v?\d+(?:\.\d+)*(?:-[A-Za-z0-9.]+)?$')
 
