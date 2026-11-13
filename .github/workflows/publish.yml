@@ -131,3 +131,15 @@ jobs:
             --notes "$NOTES" \
             --verify-tag \
             "$FLAG"
+
+  # Mirrors skills/magic-device/ into the skill registry (anilcancakir/ai) after
+  # a stable release. Pre-releases are not mirrored. It runs only after the
+  # GitHub Release job, so the registry never gets a skill whose release failed.
+  registry:
+    name: Sync skill to registry
+    needs: github-release
+    if: ${{ !contains(github.ref_name, '-') }}
+    uses: ./.github/workflows/dispatch-to-registry.yml
+    secrets:
+      REGISTRY_BOT_APP_ID: ${{ secrets.REGISTRY_BOT_APP_ID }}
+      REGISTRY_BOT_PRIVATE_KEY: ${{ secrets.REGISTRY_BOT_PRIVATE_KEY }}
