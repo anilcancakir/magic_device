@@ -1,8 +1,7 @@
 name: magic_device
-description: "Device signals for Flutter: whether the device is on mains power, whether the viewer is away, and the macOS window fullscreen state."
+description: "Gate background work in Flutter: detect mains power (charging), viewer idle and macOS window fullscreen. One import, no setup, no Runner edits."
 version: 0.0.2
 homepage: https://anilcancakir.com/magic_device
-documentation: https://anilcancakir.com/magic_device/docs
 repository: https://github.com/anilcancakir/magic_device
 issue_tracker: https://github.com/anilcancakir/magic_device/issues
 
@@ -10,8 +9,8 @@ topics:
   - battery
   - idle
   - power
+  - fullscreen
   - magic
-  - flutter
 
 environment:
   sdk: ">=3.6.0 <4.0.0"
@@ -20,8 +19,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # One `Battery()` per process lives in DevicePower: a second instance steals
-  # the first one's EventChannel subscription.
+  # DevicePower reads the battery through its `batteryState` seam; Battery() is
+  # a singleton in battery_plus 7.
   battery_plus: ^7.1.2
   # System-wide user idle on macOS and Windows only, through dart:ffi. Mobile
   # idle falls back to the app lifecycle, which is why it is not the whole

@@ -14,7 +14,7 @@ flutter pub add magic_device
 import 'package:magic_device/magic_device.dart';
 
 // Gate a heavy background job on mains power and an away viewer.
-final DevicePower power = DevicePower.instance;
+final DevicePower power = DevicePower(); // one owner calls start() and stop()
 power.start();
 
 if (await power.charging && power.idle) {
@@ -25,18 +25,17 @@ power.stop();
 
 // macOS window fullscreen state and toggle.
 final WindowFullscreen fullscreen = WindowFullscreen.instance;
-fullscreen.addListener(() => setState(() {}));
 
 if (fullscreen.available) {
   await fullscreen.toggle();
 }
 ```
 
-Nothing is collected until `start()`; `stop()` forgets both answers.
+Nothing is collected until `start()`; `stop()` resets `idle` to false.
 
 ## API
 
-- `DevicePower`: `charging` (async, on mains power: `full`, `charging` and `connectedNotCharging` count; `discharging`, `unknown` and a platform without a battery implementation do not), `idle` (sync, cached after `start()`: away for `idleThreshold`, 2 minutes), `start()`, `stop()`. Constructor readers for tests: `batteryState`, `idleDuration`, `platform`, `television`.
+- `DevicePower`: `charging` (async, on mains power: `full`, `charging` and `connectedNotCharging` count; `discharging`, `unknown` and a platform without a battery implementation do not), `idle` (sync, cached after `start()`: on native macOS and Windows no input for `idleThreshold`, 2 minutes; everywhere else any app lifecycle state but `resumed`, immediately and with no threshold), `start()`, `stop()`. Constructor readers for tests: `batteryState`, `idleDuration`, `platform`, `television`.
 - `WindowFullscreen`: `available` (true on macOS only), `active` (as the window last confirmed), `target` (moves on AppKit's will-notification), `transitioning`, `toggle()`, `pressTimeout` (1 second), `resetInstance()` for tests. It is a `ChangeNotifier`: add and remove a listener, never dispose the shared instance.
 - `BatteryState`: re-exported from `battery_plus` so a custom `batteryState` reader names the type without a direct dependency.
 
@@ -49,10 +48,17 @@ Nothing is collected until `start()`; `stop()` forgets both answers.
 
 - Import only `package:magic_device/magic_device.dart`; everything under `src/` is private.
 - Use `DevicePower.instance`, or build one `DevicePower(...)` when you must inject a reader. Let one component own `start()` and `stop()`: `stop()` has no reference count and resets `idle` to false for every consumer.
-- Never construct a `Battery()` yourself: the package holds the process's one instance, and a second one steals its EventChannel subscription.
+- To fake or replace the battery read, pass `batteryState:` instead of calling `Battery()` yourself.
 - Pass `television: () => isTelevision` on Android TV: a batteryless TV reports `unknown`, which would read as not charging forever.
 - Use `WindowFullscreen.instance` and gate every control on `available`. `toggle()` throws a `PlatformException` (`no_window`) when the Flutter view is not in a window.
 - In tests, inject the readers and call `WindowFullscreen.resetInstance()` in `tearDown`. The app lifecycle is the one read that cannot be injected; drive it through the test binding.
+
+## Docs
+
+- [Installation](https://anilcancakir.com/magic_device/getting-started/installation.md): requirements, what the package does not need, a short check, platform support.
+- [DevicePower](https://anilcancakir.com/magic_device/basics/device-power.md): charging and idle in depth, televisions, lifecycle ownership, gotchas.
+- [WindowFullscreen](https://anilcancakir.com/magic_device/basics/window-fullscreen.md): the three readings of the state, toggling, a button recipe, gotchas.
+- [Testing](https://anilcancakir.com/magic_device/guides/testing.md): injected readers, the lifecycle path, a fake window on the channel.
 
 ## Links
 

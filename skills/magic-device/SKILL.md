@@ -27,20 +27,20 @@ import 'package:magic_device/magic_device.dart';
 
 ## DevicePower rules
 
-1. Call `start()` before you read `idle`. Nothing is collected until then, `idle` stays false, and `stop()` resets it to false so a stopped instance claims no stale signal. Outside desktop `start()` attaches a lifecycle observer, so call it from the main isolate once Flutter's binding exists, not from a background isolate.
+1. Call `start()` before you read `idle`. Nothing is collected until then, `idle` stays false, and `stop()` resets it to false so a stopped instance claims no stale signal. Outside native macOS and Windows `start()` attaches a lifecycle observer, so call it from the main isolate once Flutter's binding exists, not from a background isolate.
 2. `charging` is a `Future<bool>` that asks the platform on every read; `idle` is a cached `bool`. Await the first, never await or cache the second.
 3. Let one component own `start()` and `stop()`. `DevicePower.instance` is shared and `stop()` has no reference count, so one consumer stopping it closes every other consumer's idle gate.
 4. `DevicePower.instance` is built with defaults and can never answer for a television. On Android TV build your own `DevicePower(television: () => isTelevision)` and hold it. The package cannot detect a television, so `isTelevision` is the host's own signal.
-5. Never construct a `Battery()` beside it. `DevicePower` holds the process's one instance, and a second one steals its EventChannel subscription. To replace the battery read, pass `batteryState:`.
+5. To fake or replace the battery read, pass `batteryState:` instead of calling `Battery()` yourself; `DevicePower` already holds it.
 6. `BatteryState.unknown` is not mains: it is what a batteryless Android reports. Do not widen the rule; use `television`. `full`, `charging` and `connectedNotCharging` count (a batteryless Mac reports the last). A platform with no `battery_plus` implementation answers false.
-7. State what `idle` means per platform. On native macOS and Windows it is the system-wide last-input clock, read at `start()` and then every `DevicePower.pollInterval` (30 seconds) against `DevicePower.idleThreshold` (2 minutes). Everywhere else, web included, it means the app is not in front (not `resumed`), never "no touches for two minutes".
+7. State what `idle` means per platform. On native macOS and Windows it is the system-wide last-input clock, read at `start()` and then every `DevicePower.pollInterval` (30 seconds) against `DevicePower.idleThreshold` (2 minutes). Everywhere else, web included, it means the app is not in front (any state but `resumed`, so `inactive` counts), immediately and with no threshold, never "no touches for two minutes".
 
 ## WindowFullscreen rules
 
 1. Use `WindowFullscreen.instance` only. There is no public constructor, because the channel takes one handler and a second object would replace the first one's. The first use reads the window once, so a window that opens already fullscreen is picked up.
 2. A view adds and removes a listener and never disposes the shared instance, or every other reader is left on a disposed notifier.
 3. Gate every control on `available`. It is true on macOS only (never on web); elsewhere `toggle()` sends nothing.
-4. Read the right state. `active` is what the window last confirmed, `target` moves only on AppKit's will-notification so a layout can animate with the window, and `transitioning` covers the gap while the window size changes on every frame.
+4. Read the right state. `active` is what the window last confirmed, `target` moves on AppKit's will-notification (the did-notification settles it with `active`) so a layout can animate with the window, and `transitioning` covers the gap while the window size changes on every frame.
 5. Expect `toggle()` to be ignored while a press or a transition is under way, so a double press cannot undo itself. It throws `PlatformException` with code `no_window` when the Flutter view is not in a window; that refusal releases the press, so catch it where a user can trigger it.
 6. AppKit silently ignores the call for an app that is not frontmost and posts nothing. One second (`pressTimeout`) after the call returns, the window is read again and that reading ends the press; treat the missing change as normal, not as an error.
 7. The state follows the window, not the calls: the green button, Esc and the Window menu notify listeners exactly as `toggle()` does.
@@ -107,4 +107,4 @@ power.stop();
 
 For the lifecycle path (any platform but macOS and Windows), call `TestWidgetsFlutterBinding.ensureInitialized()` and then `binding.handleAppLifecycleStateChanged(AppLifecycleState.paused)`.
 
-For `WindowFullscreen`, set `debugDefaultTargetPlatformOverride = TargetPlatform.macOS` in `setUp` and stand a fake window on the `magic_device/window` channel through `TestDefaultBinaryMessengerBinding`. In `tearDown` undo it in this order: `WindowFullscreen.resetInstance()`, then clear the mock handler, then set the override back to null. Resetting the override first leaves the channel handler installed, and an override that is never reset fails the test binding's invariant check.
+For `WindowFullscreen`, set `debugDefaultTargetPlatformOverride = TargetPlatform.macOS` in `setUp` and stand a fake window on the `magic_device/window` channel through `TestDefaultBinaryMessengerBinding`; the first use of `instance` on macOS reads the window over that channel, so every test that reaches it needs the fake. In `tearDown` undo it in this order: `WindowFullscreen.resetInstance()`, then clear the mock handler, then set the override back to null. Resetting the override first leaves the channel handler installed. That order is for plain `test()`: inside `testWidgets` the binding checks the foundation variables at the end of the body, before `tearDown`, so end the body with `WindowFullscreen.resetInstance()` and `debugDefaultTargetPlatformOverride = null`, or, with `variant: TargetPlatformVariant.only(TargetPlatform.macOS)`, leave the override out of `setUp` and still end the body with `WindowFullscreen.resetInstance()`.

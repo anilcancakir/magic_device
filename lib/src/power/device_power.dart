@@ -48,8 +48,8 @@ final class DevicePower with WidgetsBindingObserver {
         _platform = platform ?? defaultTargetPlatform,
         _isTelevision = television ?? _neverTelevision;
 
-  /// One `Battery()` for the process: a second instance steals the first one's
-  /// EventChannel subscription.
+  /// The `Battery()` the default `batteryState` reader asks: battery_plus makes
+  /// it a singleton, so this is the process's one instance.
   static final Battery _battery = Battery();
 
   final Future<BatteryState> Function() _readBatteryState;
@@ -78,7 +78,9 @@ final class DevicePower with WidgetsBindingObserver {
     }
   }
 
-  /// Whether the viewer has been away for at least [idleThreshold].
+  /// Whether the viewer is away. On native macOS and Windows that means no input
+  /// for at least [idleThreshold]; everywhere else it means the app lifecycle is
+  /// anything but resumed, immediately and with no threshold.
   bool get idle => _idle;
 
   /// Starts collecting. Idempotent: a call while already running does nothing.
@@ -106,8 +108,8 @@ final class DevicePower with WidgetsBindingObserver {
     if (state != null) didChangeAppLifecycleState(state);
   }
 
-  /// Stops collecting and forgets both answers, so a stopped instance claims no
-  /// signal rather than a stale one.
+  /// Stops collecting and resets [idle] to false, so a stopped instance claims
+  /// no signal rather than a stale one.
   void stop() {
     if (!_started) return;
     _started = false;

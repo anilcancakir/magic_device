@@ -21,7 +21,18 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
+
+      # pub.dev trusts every tag that matches the pattern, so a tag pushed from
+      # an unmerged branch would publish code that skipped the pull request and
+      # its checks. Release from the merge commit on master.
+      - name: Require the tag to sit on master
+        run: |
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/master; then
+            echo "::error::Tag $GITHUB_REF_NAME is not on master; tag the merge commit." >&2
+            exit 1
+          fi
 
       # The tag, pubspec.yaml, the podspec and the agent skill must name one
       # version, or pub.dev, the GitHub Release, the macOS pod and the skill
@@ -59,10 +70,10 @@ jobs:
       - name: Validate publish archive
         run: flutter pub publish --dry-run
 
-      # pub.dev scores 160 points. A homepage or documentation URL that does
-      # not answer a HEAD request, or a repository URL that does not match the
-      # default branch's pubspec.yaml, costs points, so the release stops here
-      # until the pages are live.
+      # pub.dev scores 160 points and a release that loses any of them stops
+      # here, before the irreversible publish. A repository URL that does not
+      # match the default branch's pubspec.yaml costs the 10 points of "valid
+      # pubspec"; an unreachable homepage or documentation URL only warns.
       - name: Require full pub.dev points (pana)
         run: |
           dart pub global activate pana 0.23.13
