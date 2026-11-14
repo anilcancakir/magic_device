@@ -1,6 +1,6 @@
 name: magic_device
 description: "Gate background work in Flutter: detect mains power (charging), viewer idle and macOS window fullscreen. One import, no setup, no Runner edits."
-version: 0.0.2
+version: 1.0.0
 homepage: https://anilcancakir.com/magic_device
 repository: https://github.com/anilcancakir/magic_device
 issue_tracker: https://github.com/anilcancakir/magic_device/issues
