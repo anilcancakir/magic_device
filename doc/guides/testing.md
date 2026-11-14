@@ -41,7 +41,7 @@ void main() {
 <a name="lifecycle"></a>
 ## Lifecycle
 
-The app lifecycle is the one read that cannot be injected. On every platform but macOS and Windows, drive it through the test binding:
+The app lifecycle is the one read that cannot be injected. On every platform but native macOS and Windows, drive it through the test binding:
 
 ```dart
 import 'package:flutter/widgets.dart';
