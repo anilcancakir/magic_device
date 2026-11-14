@@ -12,8 +12,10 @@
 ^https://github\.com/anilcancakir/magic_device/security/advisories/new
 
 # The package pages are published with the docs site; until then they answer 404.
-# Added 2026-11-13: remove this line once the docs site serves /magic_device.
-^https://anilcancakir\.com/magic_device(?:[/?#]|$)
+# Added 2026-11-15: remove these lines once the docs site serves /magic/device
+# and /magic/docs/device.
+^https://anilcancakir\.com/magic/device(?:[/?#]|$)
+^https://anilcancakir\.com/magic/docs/device(?:[/?#]|$)
 
 # Placeholder hosts inside example code.
 ^https?://([a-z0-9-]+\.)*example\.com
