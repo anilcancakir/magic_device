@@ -1,0 +1,36 @@
+name: Dependabot auto-merge
+
+on:
+  pull_request_target:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  auto-merge:
+    permissions:
+      contents: write
+      pull-requests: write
+    name: Auto-merge low-risk Dependabot PRs
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Arming auto-merge is the whole job: the merge waits for the required
+      # checks. Approval stays human on purpose and GITHUB_TOKEN could not
+      # approve anyway. Only the `minor-and-patch` group is armed: a major, a
+      # PR outside the group and a bump of the ecosystem's own 0.x packages
+      # (excluded from the group) open as separate pull requests and wait for
+      # review.
+      - name: Arm auto-merge for the minor-and-patch group
+        if: steps.metadata.outputs.dependency-group == 'minor-and-patch'
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr merge --auto --squash "$PR_URL"
