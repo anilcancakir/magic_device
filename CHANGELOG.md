@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- The package page is `https://anilcancakir.com/magic/device` and the documentation links sit under `https://anilcancakir.com/magic/docs/device`; the pub.dev page carries it from the next release.
+
 ## [1.0.0] - 2026-11-14
 
 ### Changed
