@@ -2,7 +2,7 @@
 
 Device signals for Flutter apps and the Magic Framework: mains power and viewer-away (`DevicePower`, Dart only) and the macOS window fullscreen state (`WindowFullscreen`, backed by this package's own macOS plugin, `MagicDevicePlugin`).
 
-**Version:** 0.0.2 · **Dart:** >=3.6.0 · **Flutter:** >=3.27.0
+**Version:** 1.0.0 · **Dart:** >=3.6.0 · **Flutter:** >=3.27.0
 
 ## Commands
 
@@ -85,7 +85,7 @@ Every feature, fix, or refactor must go through the red-green-refactor cycle:
 ## Release
 
 1. Open a `release:` PR that bumps `pubspec.yaml`, `macos/magic_device.podspec`, `skills/magic-device/SKILL.md` and the `Version:` line above, and promotes `[Unreleased]` in `CHANGELOG.md`.
-2. After it merges, tag the merge commit with the bare version (`git tag 0.0.3 && git push origin 0.0.3`, no `v`). `publish.yml` runs from the tag; the pub.dev Admin tab holds repository `anilcancakir/magic_device`, tag pattern `{{version}}` and push events only.
+2. After it merges, tag the merge commit with the bare version (`git tag 1.0.1 && git push origin 1.0.1`, no `v`). `publish.yml` runs from the tag; the pub.dev Admin tab holds repository `anilcancakir/magic_device`, tag pattern `{{version}}` and push events only.
 3. A failed `validate` is fixed forward: delete the tag (`git push --delete origin <tag>` and `git tag -d <tag>`), fix it on a PR and tag the new merge commit, because a re-run builds the same commit. If only `github-release` fails after pub.dev accepted the version, use "Re-run failed jobs" (never "Re-run all jobs", where `publish` is rejected as a duplicate) or run `gh release create <tag> --title <tag> --latest --verify-tag --notes-file <file>`.
 
 The first publish (0.0.1) was a manual `flutter pub publish`, since tag-triggered OIDC cannot create a package.
