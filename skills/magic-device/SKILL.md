@@ -57,10 +57,11 @@ Future<bool> safeToRunJob({required bool isTelevision}) async {
   final DevicePower power = DevicePower(television: () => isTelevision);
   power.start();
 
-  final bool safe = await power.charging && power.idle;
-
-  power.stop();
-  return safe;
+  try {
+    return await power.charging && power.idle;
+  } finally {
+    power.stop();
+  }
 }
 ```
 
