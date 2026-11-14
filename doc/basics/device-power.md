@@ -89,7 +89,7 @@ The package cannot detect a television, so `isTelevision` is the host's own sign
 
 - `start()` is idempotent, and `stop()` resets `idle` to `false` so a stopped instance claims no stale signal.
 - Let one component own `start()` and `stop()` of a shared instance. `stop()` has no reference count, so one consumer stopping `DevicePower.instance` closes every other consumer's idle gate.
-- Outside macOS and Windows, `start()` attaches a lifecycle observer and needs Flutter's binding: call it from the main isolate, not from a background isolate.
+- Outside native macOS and Windows, `start()` attaches a lifecycle observer and needs Flutter's binding: call it from the main isolate, not from a background isolate.
 
 <a name="gotchas"></a>
 ## Gotchas

@@ -31,7 +31,7 @@
 | Install | `flutter pub add magic_device` |
 | Import | `package:magic_device/magic_device.dart` |
 | Entry points | `DevicePower` (mains power, viewer away), `WindowFullscreen` (macOS window state) |
-| Platforms | `DevicePower` is plain Dart over `battery_plus` with no native code of its own; system-wide idle on macOS and Windows only. `WindowFullscreen` is macOS only and reports `available == false` elsewhere. |
+| Platforms | `DevicePower` is plain Dart over `battery_plus` with no native code of its own; system-wide idle on native macOS and Windows only. `WindowFullscreen` is macOS only and reports `available == false` elsewhere. |
 | Requires | Dart >=3.6, Flutter >=3.27 |
 | Dependencies | `battery_plus`, `flutter_inactive_timer`; `WindowFullscreen` uses the Flutter SDK only |
 | License | MIT |

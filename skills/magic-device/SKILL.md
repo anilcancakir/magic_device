@@ -2,7 +2,7 @@
 name: magic-device
 description: "Gate background work on mains power and viewer idle, and drive macOS window fullscreen, with the magic_device package."
 version: 1.0.0
-when_to_use: "Use when code imports package:magic_device or needs DevicePower, WindowFullscreen, a charging, unplugged or away check, or a macOS fullscreen toggle."
+when_to_use: "Use when code imports package:magic_device or needs DevicePower, WindowFullscreen, a charging or away check, or a macOS fullscreen toggle."
 ---
 
 # magic_device
@@ -41,8 +41,8 @@ import 'package:magic_device/magic_device.dart';
 2. A view adds and removes a listener and never disposes the shared instance, or every other reader is left on a disposed notifier.
 3. Gate every control on `available`. It is true on macOS only (never on web); elsewhere `toggle()` sends nothing.
 4. Read the right state. `active` is what the window last confirmed, `target` moves on AppKit's will-notification (the did-notification settles it with `active`) so a layout can animate with the window, and `transitioning` covers the gap while the window size changes on every frame.
-5. Expect `toggle()` to be ignored while a press or a transition is under way, so a double press cannot undo itself. It throws `PlatformException` with code `no_window` when the Flutter view is not in a window; that refusal releases the press, so catch it where a user can trigger it.
-6. AppKit silently ignores the call for an app that is not frontmost and posts nothing. One second (`pressTimeout`) after the call returns, the window is read again and that reading ends the press; treat the missing change as normal, not as an error.
+5. Expect `toggle()` to be ignored while a press or a transition is under way, so a double press cannot undo itself. Catch the `PlatformException` with code `no_window` where a user can trigger it.
+6. Treat a `toggle()` that changes nothing as normal, not as an error: AppKit ignores the call for an app that is not frontmost.
 7. The state follows the window, not the calls: the green button, Esc and the Window menu notify listeners exactly as `toggle()` does.
 
 ## Recipes
@@ -50,24 +50,32 @@ import 'package:magic_device/magic_device.dart';
 Gate a heavy job on mains power and an away viewer:
 
 ```dart
+import 'package:magic_device/magic_device.dart';
+
 // isTelevision is the host's own detection.
-final DevicePower power = DevicePower(television: () => isTelevision);
-power.start();
+Future<bool> safeToRunJob({required bool isTelevision}) async {
+  final DevicePower power = DevicePower(television: () => isTelevision);
+  power.start();
 
-if (await power.charging && power.idle) {
-  // Safe to run the job.
+  try {
+    return await power.charging && power.idle;
+  } finally {
+    power.stop();
+  }
 }
-
-power.stop();
 ```
 
 A fullscreen button that follows the window. `ListenableBuilder` adds and removes the listener itself, and the handler catches the one refusal a user can cause:
 
 ```dart
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // PlatformException
+import 'package:magic_device/magic_device.dart';
 
-if (WindowFullscreen.instance.available)
-  ListenableBuilder(
+Widget fullscreenButton() {
+  if (!WindowFullscreen.instance.available) return const SizedBox.shrink();
+
+  return ListenableBuilder(
     listenable: WindowFullscreen.instance,
     builder: (BuildContext context, Widget? child) => IconButton(
       icon: Icon(
@@ -83,7 +91,8 @@ if (WindowFullscreen.instance.available)
         }
       },
     ),
-  ),
+  );
+}
 ```
 
 ## Testing
@@ -91,21 +100,29 @@ if (WindowFullscreen.instance.available)
 No mocking library is needed. Every `DevicePower` platform read is a constructor parameter except the app lifecycle. `idleDuration` returns milliseconds:
 
 ```dart
-final DevicePower power = DevicePower(
-  batteryState: () async => BatteryState.discharging,
-  idleDuration: () async => const Duration(minutes: 5).inMilliseconds,
-  platform: TargetPlatform.macOS,
-);
+import 'package:flutter/foundation.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:magic_device/magic_device.dart';
 
-power.start();
-await power.refreshIdle(); // @visibleForTesting: drive the poll without waiting
+void main() {
+  test('a discharging device with an away viewer', () async {
+    final DevicePower power = DevicePower(
+      batteryState: () async => BatteryState.discharging,
+      idleDuration: () async => const Duration(minutes: 5).inMilliseconds,
+      platform: TargetPlatform.macOS,
+    );
 
-expect(await power.charging, isFalse);
-expect(power.idle, isTrue);
+    power.start();
+    await power.refreshIdle(); // @visibleForTesting: drive the poll without waiting
 
-power.stop();
+    expect(await power.charging, isFalse);
+    expect(power.idle, isTrue);
+
+    power.stop();
+  });
+}
 ```
 
-For the lifecycle path (any platform but macOS and Windows), call `TestWidgetsFlutterBinding.ensureInitialized()` and then `binding.handleAppLifecycleStateChanged(AppLifecycleState.paused)`.
+For the lifecycle path (any platform but native macOS and Windows), call `TestWidgetsFlutterBinding.ensureInitialized()` and then `binding.handleAppLifecycleStateChanged(AppLifecycleState.paused)`.
 
-For `WindowFullscreen`, set `debugDefaultTargetPlatformOverride = TargetPlatform.macOS` in `setUp` and stand a fake window on the `magic_device/window` channel through `TestDefaultBinaryMessengerBinding`; the first use of `instance` on macOS reads the window over that channel, so every test that reaches it needs the fake. In `tearDown` undo it in this order: `WindowFullscreen.resetInstance()`, then clear the mock handler, then set the override back to null. Resetting the override first leaves the channel handler installed. That order is for plain `test()`: inside `testWidgets` the binding checks the foundation variables at the end of the body, before `tearDown`, so end the body with `WindowFullscreen.resetInstance()` and `debugDefaultTargetPlatformOverride = null`, or, with `variant: TargetPlatformVariant.only(TargetPlatform.macOS)`, leave the override out of `setUp` and still end the body with `WindowFullscreen.resetInstance()`.
+For `WindowFullscreen`, set `debugDefaultTargetPlatformOverride = TargetPlatform.macOS` in `setUp` and stand a fake window on the `magic_device/window` channel through `TestDefaultBinaryMessengerBinding`, because the first use of `instance` on macOS reads the window over that channel. In `tearDown` call `WindowFullscreen.resetInstance()` first, then clear the mock handler, then set the override back to null; the other order leaves the channel handler installed. Inside `testWidgets` end the body with `resetInstance()` and `debugDefaultTargetPlatformOverride = null` instead, because the binding checks the override before `tearDown` runs.
