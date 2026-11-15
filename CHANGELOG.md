@@ -4,8 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-15
+
 ### Changed
-- The package page is `https://anilcancakir.com/magic/device` and the documentation links sit under `https://anilcancakir.com/magic/docs/device`; the pub.dev page carries it from the next release.
+- The package page is `https://anilcancakir.com/magic/device` and the documentation links sit under `https://anilcancakir.com/magic/docs/device`.
 
 ### Fixed
 - The docs and the agent skill now say "native macOS and Windows" where they said "macOS and Windows": a web build on a Mac attaches the lifecycle observer too, because the system-wide idle clock is read only on native macOS and Windows.

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'magic_device'
-  s.version          = '1.0.0'
+  s.version          = '1.0.1'
   s.summary          = 'Device signals for Flutter: the macOS window fullscreen channel.'
   s.description      = <<-DESC
 Answers the magic_device/window channel for the window that holds the Flutter view.
