@@ -86,7 +86,7 @@ Every feature, fix, or refactor must go through the red-green-refactor cycle:
 
 ## Release
 
-1. Open a `release:` PR that bumps `pubspec.yaml`, `macos/magic_device.podspec`, `skills/magic-device/SKILL.md` and the `Version:` line above, and promotes `[Unreleased]` in `CHANGELOG.md`.
+1. Open a `release:` PR that bumps `pubspec.yaml`, `macos/magic_device.podspec`, `skills/magic-device/SKILL.md`, the version placeholder in `.github/ISSUE_TEMPLATE/bug_report.yml` and the `Version:` line above, and promotes `[Unreleased]` in `CHANGELOG.md`.
 2. After it merges, tag the merge commit with the bare version (`git tag <version> && git push origin <version>`, no `v`). `publish.yml` runs from the tag; the pub.dev Admin tab holds repository `anilcancakir/magic_device`, tag pattern `{{version}}` and push events only.
 3. A failed `validate` is fixed forward: delete the tag (`git push --delete origin <tag>` and `git tag -d <tag>`), fix it on a PR and tag the new merge commit, because a re-run builds the same commit. If only `github-release` fails after pub.dev accepted the version, use "Re-run failed jobs" (never "Re-run all jobs", where `publish` is rejected as a duplicate) or run `gh release create <tag> --title <tag> --latest --verify-tag --notes-file <file>`.
 
