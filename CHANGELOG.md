@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- **pub.dev tags the package for every platform it runs on.** The pubspec declared only macOS (the native `WindowFullscreen` plugin), so the package page showed a macOS-only package although `DevicePower` is plain Dart over `battery_plus`. A top-level `platforms:` key now declares Android, iOS, Linux, macOS and Windows. Web is left out on purpose: declaring it makes pana's WASM check fail and costs 10 points, while the code itself still runs on the web. (`pubspec.yaml`, `README.md`, `llms.txt`)
+
 ## [1.0.1] - 2026-11-15
 
 ### Changed

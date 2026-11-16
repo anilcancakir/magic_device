@@ -12,6 +12,17 @@ topics:
   - fullscreen
   - magic
 
+# Every platform the package runs on. The native half exists on macOS only
+# (see `flutter.plugin.platforms` below), so pub.dev would tag it macOS alone;
+# the Dart half is plain Dart over battery_plus and answers `available` false
+# off macOS.
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  windows:
+
 environment:
   sdk: ">=3.6.0 <4.0.0"
   flutter: ">=3.27.0"
