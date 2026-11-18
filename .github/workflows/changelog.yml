@@ -41,7 +41,9 @@ jobs:
             *,skip-changelog,*) echo "skip-changelog label: exempt."; exit 0 ;;
           esac
 
-          changed="$(git diff --name-only --no-renames "origin/$BASE_REF"...HEAD)"
+          # -z keeps Git from quoting a path with non-ASCII characters, which would hide
+          # its directory prefix from the check below.
+          changed="$(git diff --name-only --no-renames -z "origin/$BASE_REF"...HEAD | tr '\0' '\n')"
 
           if ! printf '%s\n' "$changed" | grep -Eq "$CODE_PATHS"; then
             echo "No shipped code changed: nothing to record."

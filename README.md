@@ -70,7 +70,7 @@ Nothing is collected until `start()`, and `stop()` resets `idle` to false.
 
 ### Televisions
 
-A batteryless Android TV reports `unknown`, which would read as not charging forever. On Android the default `television` reader asks the package's Android plugin (`UiModeManager` reports the television UI mode) and reuses a settled answer, and a television answers `charging` true without reading the battery, `DevicePower.instance` included. Every other platform answers false without asking. Pass a `television` predicate to use another signal. In a `testWidgets` body pass `television:`, or a non-Android `platform:`: the platform reply never arrives under `FakeAsync`, and `platform: TargetPlatform.android` alone still asks the plugin.
+A batteryless Android TV reports `unknown`, which would read as not charging forever. On Android the default `television` reader asks the package's Android plugin (`UiModeManager` reports the television UI mode) and reuses a settled answer, and a television answers `charging` true without reading the battery, `DevicePower.instance` included. On every other platform the default `television` reader answers false without opening the channel, and `charging` then reads the battery state. Pass a `television` predicate to use another signal. In a `testWidgets` body pass `television:`, or a non-Android `platform:`: the platform reply never arrives under `FakeAsync`, and `platform: TargetPlatform.android` alone still asks the plugin.
 
 ### Testing
 
