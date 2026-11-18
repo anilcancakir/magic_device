@@ -48,12 +48,14 @@ jobs:
           # its directory prefix from the check below.
           changed="$(git diff --name-only --no-renames -z "origin/$BASE_REF"...HEAD | tr '\0' '\n')"
 
-          if ! printf '%s\n' "$changed" | grep -Eq "$CODE_PATHS"; then
+          # Here-strings, not pipes: with pipefail, grep -q leaving at its first match
+          # would make the writer die of SIGPIPE and flip the answer.
+          if ! grep -Eq "$CODE_PATHS" <<<"$changed"; then
             echo "No shipped code changed: nothing to record."
             exit 0
           fi
 
-          if printf '%s\n' "$changed" | grep -qx 'CHANGELOG.md'; then
+          if grep -qx 'CHANGELOG.md' <<<"$changed"; then
             echo "CHANGELOG.md is updated."
             exit 0
           fi
