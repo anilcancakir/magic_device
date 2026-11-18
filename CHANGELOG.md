@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-18
+
 ### Added
 - **An Android plugin for the television check.** `MagicDevicePlugin` on Android answers `isTelevision` on the `magic_device/television` channel from `UiModeManager.currentModeType`, and registers itself, so the host's `MainActivity` needs no edit. (#18)
 

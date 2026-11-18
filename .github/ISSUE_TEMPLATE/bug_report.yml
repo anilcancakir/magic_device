@@ -55,7 +55,7 @@ body:
     id: version
     attributes:
       label: magic_device Version
-      placeholder: "1.0.2"
+      placeholder: "1.1.0"
     validations:
       required: true
 
