@@ -4,6 +4,7 @@ import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:magic_device/src/power/android_television.dart';
 import 'package:magic_device/src/power/os_idle.dart';
 
 /// The two hardware signals a background job gates on: whether the device
@@ -16,7 +17,7 @@ import 'package:magic_device/src/power/os_idle.dart';
 /// once per read.
 ///
 /// ```dart
-/// final DevicePower power = DevicePower(television: () => isTelevision);
+/// final DevicePower power = DevicePower.instance;
 /// power.start();
 ///
 /// if (await power.charging && power.idle) {
@@ -24,7 +25,8 @@ import 'package:magic_device/src/power/os_idle.dart';
 /// }
 /// ```
 final class DevicePower with WidgetsBindingObserver {
-  /// The shared instance; a test builds its own through the constructor.
+  /// The shared instance, with every default reader: on Android it answers for
+  /// a television. A test builds its own through the constructor.
   static final DevicePower instance = DevicePower();
 
   /// How long without input before the viewer counts as away.
@@ -36,17 +38,24 @@ final class DevicePower with WidgetsBindingObserver {
   static const Duration pollInterval = Duration(seconds: 30);
 
   /// Every reader is injectable. [television] answers whether the device is a
-  /// television, which has no battery to read; the package cannot tell, so the
-  /// default is `() => false` and the host passes its own signal.
+  /// television, which has no battery to read. On Android the default asks the
+  /// package's Android plugin and reuses a settled answer; everywhere else it
+  /// is false without asking. A host passes its own to use another signal. A
+  /// widget test passes `television:` (or a non-Android [platform]): under
+  /// `FakeAsync` the plugin's reply never arrives, and `platform:
+  /// TargetPlatform.android` alone still uses the plugin.
   DevicePower({
     Future<BatteryState> Function()? batteryState,
     Future<int> Function()? idleDuration,
     TargetPlatform? platform,
-    bool Function()? television,
+    FutureOr<bool> Function()? television,
   })  : _readBatteryState = batteryState ?? _batteryStateOf,
         _readIdleDuration = idleDuration ?? osIdleMilliseconds,
         _platform = platform ?? defaultTargetPlatform,
-        _isTelevision = television ?? _neverTelevision;
+        _isTelevision = television ??
+            _televisionOf(
+              platform ?? defaultTargetPlatform,
+            );
 
   /// The `Battery()` the default `batteryState` reader asks: battery_plus makes
   /// it a singleton, so this is the process's one instance.
@@ -55,7 +64,7 @@ final class DevicePower with WidgetsBindingObserver {
   final Future<BatteryState> Function() _readBatteryState;
   final Future<int> Function() _readIdleDuration;
   final TargetPlatform _platform;
-  final bool Function() _isTelevision;
+  final FutureOr<bool> Function() _isTelevision;
 
   Timer? _poll;
   bool _started = false;
@@ -63,11 +72,11 @@ final class DevicePower with WidgetsBindingObserver {
 
   /// Whether the device is on mains power right now.
   ///
-  /// A television answers true without asking the platform: a batteryless
+  /// A television answers true without reading the battery: a batteryless
   /// Android TV reports `unknown`, which would gate the work off forever on a
   /// box that never runs on anything else.
   Future<bool> get charging async {
-    if (_isTelevision()) return true;
+    if (await _isTelevision()) return true;
 
     try {
       return isOnMains(await _readBatteryState());
@@ -144,7 +153,8 @@ final class DevicePower with WidgetsBindingObserver {
   ///
   /// A Mac without a battery (mini, Studio, a batteryless VM) reports
   /// `connectedNotCharging`, which is exactly the on-mains answer wanted here.
-  /// `unknown` is what a batteryless Android reports, so it cannot count.
+  /// `unknown` is what a batteryless Android reports, so it cannot count;
+  /// [charging] answers for a television before the battery is read.
   @visibleForTesting
   static bool isOnMains(BatteryState state) => switch (state) {
         BatteryState.full ||
@@ -160,6 +170,13 @@ final class DevicePower with WidgetsBindingObserver {
           _platform == TargetPlatform.windows);
 
   static Future<BatteryState> _batteryStateOf() => _battery.batteryState;
+
+  /// The default television reader for [platform]. The web never opens the
+  /// channel, even in a browser on an Android device: no plugin answers there.
+  static FutureOr<bool> Function() _televisionOf(TargetPlatform platform) =>
+      !kIsWeb && platform == TargetPlatform.android
+          ? isAndroidTelevision
+          : _neverTelevision;
 
   static bool _neverTelevision() => false;
 }

@@ -38,6 +38,7 @@ The barrel is the only import; everything under `src/` is private. `BatteryState
 - No service provider, config file, facade or CLI command, and no dependency on `magic`. Construct the classes where you need them: a controller, a provider's `boot()` or a background job.
 - No `plugin:install` step.
 - No Runner edit. The package's macOS plugin registers the `magic_device/window` channel itself, so the host's `MainFlutterWindow.swift` stays Flutter's stock one.
+- No `MainActivity` edit. The package's Android plugin registers the `magic_device/television` channel itself.
 
 <a name="verify"></a>
 ## Verify
@@ -65,6 +66,7 @@ On a laptop on battery this prints `on mains: false`. `fullscreen available` is 
 | Signal | Source |
 |:-------|:-------|
 | `DevicePower.charging` | `battery_plus`. A platform with no implementation answers `false`, and a web browser without `navigator.getBattery` reports `unknown`, which also reads as `false`. |
+| `DevicePower.charging` on an Android TV | `true` without reading the battery: the package's Android plugin asks `UiModeManager` and the answer is reused once it settles. |
 | `DevicePower.idle` on native macOS and Windows | The system-wide last-input clock. |
 | `DevicePower.idle` everywhere else, web included | The app lifecycle: idle whenever the app is not in front. |
 | `WindowFullscreen` | macOS only. `available` is `false` elsewhere and `toggle()` sends nothing. |

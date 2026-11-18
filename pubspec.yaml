@@ -12,10 +12,10 @@ topics:
   - fullscreen
   - magic
 
-# Every platform the package runs on. The native half exists on macOS only
-# (see `flutter.plugin.platforms` below), so pub.dev would tag it macOS alone;
-# the Dart half is plain Dart over battery_plus and answers `available` false
-# off macOS.
+# Every platform the package runs on. The native half exists on Android and
+# macOS only (see `flutter.plugin.platforms` below), so pub.dev would tag it
+# with those two alone; the Dart half is plain Dart over battery_plus, answers
+# `available` false off macOS and asks for a television on Android only.
 platforms:
   android:
   ios:
@@ -46,6 +46,11 @@ dev_dependencies:
 flutter:
   plugin:
     platforms:
+      # DevicePower's television answer, from UiModeManager. Every other
+      # platform answers false from Dart and never opens the channel.
+      android:
+        package: com.anilcancakir.magic_device
+        pluginClass: MagicDevicePlugin
       # WindowFullscreen's native half. Every other platform answers
       # `available` false from Dart and never opens the channel.
       macos:

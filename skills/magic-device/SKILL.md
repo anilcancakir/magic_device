@@ -17,7 +17,7 @@ This skill covers `magic_device` only. The Magic framework itself is the `magic-
 flutter pub add magic_device
 ```
 
-Requires Dart >=3.6 and Flutter >=3.27. There is no `plugin:install` step. The macOS plugin registers the `magic_device/window` channel by itself, so the host's `MainFlutterWindow.swift` stays Flutter's stock one; do not edit it. Import only the barrel, because everything under `src/` is private:
+Requires Dart >=3.6 and Flutter >=3.27. There is no `plugin:install` step. The macOS plugin registers the `magic_device/window` channel by itself, so the host's `MainFlutterWindow.swift` stays Flutter's stock one; do not edit it. The Android plugin registers `magic_device/television` the same way, so `MainActivity` needs no edit either. Import only the barrel, because everything under `src/` is private:
 
 ```dart
 import 'package:magic_device/magic_device.dart';
@@ -30,9 +30,9 @@ import 'package:magic_device/magic_device.dart';
 1. Call `start()` before you read `idle`. Nothing is collected until then, `idle` stays false, and `stop()` resets it to false so a stopped instance claims no stale signal. Outside native macOS and Windows `start()` attaches a lifecycle observer, so call it from the main isolate once Flutter's binding exists, not from a background isolate.
 2. `charging` is a `Future<bool>` that asks the platform on every read; `idle` is a cached `bool`. Await the first, never await or cache the second.
 3. Let one component own `start()` and `stop()`. `DevicePower.instance` is shared and `stop()` has no reference count, so one consumer stopping it closes every other consumer's idle gate.
-4. `DevicePower.instance` is built with defaults and can never answer for a television. On Android TV build your own `DevicePower(television: () => isTelevision)` and hold it. The package cannot detect a television, so `isTelevision` is the host's own signal.
+4. `DevicePower.instance` answers for an Android TV with no setup: on Android the default `television` reader asks the package's Android plugin (`UiModeManager`, channel `magic_device/television`) and reuses a settled answer, and every other platform answers false without asking. Do not carry a host-side TV detector; pass `television:` only for another signal or to fix the answer in a test. Under `flutter_test` (Android by default) a plain `test()` reads false, and a `testWidgets` body hangs on the channel unless it passes `television:` or a non-Android `platform:` (`platform: TargetPlatform.android` alone still asks it).
 5. To fake or replace the battery read, pass `batteryState:` instead of calling `Battery()` yourself; `DevicePower` already holds it.
-6. `BatteryState.unknown` is not mains: it is what a batteryless Android reports. Do not widen the rule; use `television`. `full`, `charging` and `connectedNotCharging` count (a batteryless Mac reports the last). A platform with no `battery_plus` implementation answers false.
+6. `BatteryState.unknown` is not mains: it is what a batteryless Android reports. Do not widen the rule; a television answers through `television`. `full`, `charging` and `connectedNotCharging` count (a batteryless Mac reports the last). A platform with no `battery_plus` implementation answers false.
 7. State what `idle` means per platform. On native macOS and Windows it is the system-wide last-input clock, read at `start()` and then every `DevicePower.pollInterval` (30 seconds) against `DevicePower.idleThreshold` (2 minutes). Everywhere else, web included, it means the app is not in front (any state but `resumed`, so `inactive` counts), immediately and with no threshold, never "no touches for two minutes".
 
 ## WindowFullscreen rules
@@ -52,9 +52,8 @@ Gate a heavy job on mains power and an away viewer:
 ```dart
 import 'package:magic_device/magic_device.dart';
 
-// isTelevision is the host's own detection.
-Future<bool> safeToRunJob({required bool isTelevision}) async {
-  final DevicePower power = DevicePower(television: () => isTelevision);
+Future<bool> safeToRunJob() async {
+  final DevicePower power = DevicePower();
   power.start();
 
   try {

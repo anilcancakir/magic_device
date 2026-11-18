@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **An Android plugin for the television check.** `MagicDevicePlugin` on Android answers `isTelevision` on the `magic_device/television` channel from `UiModeManager.currentModeType`, and registers itself, so the host's `MainActivity` needs no edit. (#18)
+
+### Changed
+- **`DevicePower.instance` answers for an Android TV.** On Android the default `television` reader asks the new plugin and reuses a settled answer (a missing plugin settles it on false; a `PlatformException`, or no Flutter binding yet, answers false for that read only), so a batteryless TV, which reports `unknown`, reads as on mains instead of gating work off for ever. With no plugin behind the channel it answers false. A `testWidgets` body that builds a `DevicePower` on Android without `television:` waits on a reply `FakeAsync` never delivers, so pass `television:` or a non-Android `platform:` there. iOS, macOS, Linux, Windows and the web answer false as before and never open the channel. (#18)
+- **`television` may answer asynchronously.** The constructor parameter is now `FutureOr<bool> Function()?`, so `() => true` still fits and a `Future` does too; an injected predicate still replaces the default. (#18)
+- The `Changelog` check now also counts a change under `android/` as shipped code.
+
 ## [1.0.2] - 2026-11-16
 
 ### Fixed

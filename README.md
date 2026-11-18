@@ -31,7 +31,7 @@
 | Install | `flutter pub add magic_device` |
 | Import | `package:magic_device/magic_device.dart` |
 | Entry points | `DevicePower` (mains power, viewer away), `WindowFullscreen` (macOS window state) |
-| Platforms | `DevicePower` is plain Dart over `battery_plus` with no native code of its own; system-wide idle on native macOS and Windows only. `WindowFullscreen` is macOS only and reports `available == false` elsewhere. The pubspec declares Android, iOS, Linux, macOS and Windows; a web build runs the same Dart code, but web is not declared, so the pub.dev page carries no web tag. |
+| Platforms | `DevicePower` is Dart over `battery_plus`, plus a small Android plugin that tells it whether the device is a television; system-wide idle on native macOS and Windows only. `WindowFullscreen` is macOS only and reports `available == false` elsewhere. The pubspec declares Android, iOS, Linux, macOS and Windows; a web build runs the same Dart code, but web is not declared, so the pub.dev page carries no web tag. |
 | Requires | Dart >=3.6, Flutter >=3.27 |
 | Dependencies | `battery_plus`, `flutter_inactive_timer`; `WindowFullscreen` uses the Flutter SDK only |
 | License | MIT |
@@ -42,7 +42,7 @@
 flutter pub add magic_device
 ```
 
-`DevicePower` needs no setup. `WindowFullscreen` registers its own macOS plugin, so a macOS host needs no edit to its Runner either.
+`DevicePower` needs no setup: its Android plugin registers itself, so `MainActivity` stays untouched. `WindowFullscreen` registers its own macOS plugin, so a macOS host needs no edit to its Runner either.
 
 ## DevicePower
 
@@ -51,8 +51,7 @@ Two hardware signals a background job can gate on: whether the device draws from
 ```dart
 import 'package:magic_device/magic_device.dart';
 
-// isTelevision is your own detection, for example a platform channel or a build flavour.
-final DevicePower power = DevicePower(television: () => isTelevision);
+final DevicePower power = DevicePower.instance;
 power.start();
 
 if (await power.charging && power.idle) {
@@ -71,7 +70,7 @@ Nothing is collected until `start()`, and `stop()` resets `idle` to false.
 
 ### Televisions
 
-A batteryless Android TV reports `unknown`, which would read as not charging forever. Pass a `television` predicate and `charging` answers true without asking the platform. The default is `() => false`.
+A batteryless Android TV reports `unknown`, which would read as not charging forever. On Android the default `television` reader asks the package's Android plugin (`UiModeManager` reports the television UI mode) and reuses a settled answer, and a television answers `charging` true without reading the battery, `DevicePower.instance` included. On every other platform the default `television` reader answers false without opening the channel, and `charging` then reads the battery state. Pass a `television` predicate to use another signal. In a `testWidgets` body pass `television:`, or a non-Android `platform:`: the platform reply never arrives under `FakeAsync`, and `platform: TargetPlatform.android` alone still asks the plugin.
 
 ### Testing
 
@@ -115,7 +114,7 @@ Rules for an agent writing code against this package. Each one is a mistake the 
 | Import only `package:magic_device/magic_device.dart` | Everything under `src/` is private. |
 | Use `DevicePower.instance`, or build one `DevicePower(...)` when you need to inject a reader; let one component own `start()` and `stop()` | `instance` is shared and `stop()` has no reference count: it resets `idle` to false for every consumer. To fake or replace the battery read, pass `batteryState:` instead of calling `Battery()` yourself. |
 | `await power.charging`, read `power.idle` synchronously | `charging` asks the platform; `idle` is cached after `start()`. |
-| Pass `television: () => isTelevision` on Android TV | A batteryless TV reports `unknown`, which reads as not charging forever. |
+| Leave `television` at its default on Android TV; pass it only for another signal | The default asks `UiModeManager` and reuses a settled answer. A batteryless TV reports `unknown`, which would read as not charging forever. |
 | Use `WindowFullscreen.instance`, add and remove a listener, never `dispose()` it, and gate the control on `available` | The channel takes one handler, and disposing the shared instance leaves every other reader on a disposed notifier. Non-macOS platforms send nothing. |
 | Call `WindowFullscreen.resetInstance()` in `tearDown`; inject the four `DevicePower` readers in tests | No mocking library is needed. |
 
