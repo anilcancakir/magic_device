@@ -29,7 +29,7 @@ jobs:
           AUTHOR: ${{ github.event.pull_request.user.login }}
           TITLE: ${{ github.event.pull_request.title }}
           LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
-          CODE_PATHS: '^(lib/|macos/)'
+          CODE_PATHS: '^(lib/|android/|macos/)'
         run: |
           case "$AUTHOR" in
             dependabot*) echo "Dependabot pull request: exempt."; exit 0 ;;

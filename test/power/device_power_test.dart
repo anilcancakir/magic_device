@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:battery_plus/battery_plus.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:magic_device/src/power/android_television.dart';
 import 'package:magic_device/src/power/device_power.dart';
 
 void main() {
@@ -45,12 +47,139 @@ void main() {
       expect(await television.charging, isTrue);
     });
 
-    test('nothing is a television unless the host says so', () async {
+    test('a platform with no television signal is not one', () async {
       final DevicePower power = DevicePower(
         batteryState: () async => BatteryState.unknown,
+        platform: TargetPlatform.iOS,
       );
 
       expect(await power.charging, isFalse);
+    });
+  });
+
+  group('television by default', () {
+    const MethodChannel channel = MethodChannel('magic_device/television');
+    final List<String> calls = [];
+    int batteryReads = 0;
+
+    Future<BatteryState> unknownBattery() async {
+      batteryReads++;
+      return BatteryState.unknown;
+    }
+
+    void answer(bool? television) {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        channel,
+        television == null
+            ? null
+            : (MethodCall call) async {
+                calls.add(call.method);
+                return television;
+              },
+      );
+    }
+
+    setUp(() {
+      calls.clear();
+      batteryReads = 0;
+      resetAndroidTelevision();
+    });
+
+    tearDown(() {
+      answer(null);
+      resetAndroidTelevision();
+    });
+
+    test('an Android television is on mains without reading the battery',
+        () async {
+      answer(true);
+      final DevicePower power = DevicePower(
+        platform: TargetPlatform.android,
+        batteryState: unknownBattery,
+      );
+
+      expect(await power.charging, isTrue);
+      expect(calls, ['isTelevision']);
+      expect(batteryReads, 0);
+    });
+
+    test('any other Android device reads the battery', () async {
+      answer(false);
+      final DevicePower power = DevicePower(
+        platform: TargetPlatform.android,
+        batteryState: unknownBattery,
+      );
+
+      expect(await power.charging, isFalse);
+      expect(calls, ['isTelevision']);
+      expect(batteryReads, 1);
+    });
+
+    test('an Android without the native half reads the battery', () async {
+      final DevicePower power = DevicePower(
+        platform: TargetPlatform.android,
+        batteryState: unknownBattery,
+      );
+
+      expect(await power.charging, isFalse);
+      expect(batteryReads, 1);
+    });
+
+    test('the channel is asked once however often charging is read', () async {
+      answer(true);
+      final DevicePower power = DevicePower(
+        platform: TargetPlatform.android,
+        batteryState: unknownBattery,
+      );
+
+      expect(await power.charging, isTrue);
+      expect(await power.charging, isTrue);
+      expect(await power.charging, isTrue);
+      expect(calls, ['isTelevision']);
+    });
+
+    for (final TargetPlatform platform in const [
+      TargetPlatform.iOS,
+      TargetPlatform.macOS,
+      TargetPlatform.linux,
+      TargetPlatform.windows,
+      TargetPlatform.fuchsia,
+    ]) {
+      test('${platform.name} never asks the channel', () async {
+        answer(true);
+        final DevicePower power = DevicePower(
+          platform: platform,
+          batteryState: unknownBattery,
+        );
+
+        expect(await power.charging, isFalse);
+        expect(calls, isEmpty);
+        expect(batteryReads, 1);
+      });
+    }
+
+    test('an injected television wins over the channel', () async {
+      answer(true);
+      final DevicePower power = DevicePower(
+        platform: TargetPlatform.android,
+        television: () => false,
+        batteryState: unknownBattery,
+      );
+
+      expect(await power.charging, isFalse);
+      expect(calls, isEmpty);
+    });
+
+    test('an injected television may answer asynchronously', () async {
+      final DevicePower power = DevicePower(
+        platform: TargetPlatform.iOS,
+        television: () async => true,
+        batteryState: unknownBattery,
+      );
+
+      expect(await power.charging, isTrue);
+      expect(batteryReads, 0);
     });
   });
 

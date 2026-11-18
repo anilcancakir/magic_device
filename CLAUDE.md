@@ -2,7 +2,7 @@
 
 # Magic Device Plugin
 
-Device signals for Flutter apps and the Magic Framework: mains power and viewer-away (`DevicePower`, Dart only) and the macOS window fullscreen state (`WindowFullscreen`, backed by this package's own macOS plugin, `MagicDevicePlugin`).
+Device signals for Flutter apps and the Magic Framework: mains power and viewer-away (`DevicePower`, Dart plus a small Android plugin that reads the television mode) and the macOS window fullscreen state (`WindowFullscreen`, backed by this package's own macOS plugin, `MagicDevicePlugin`).
 
 **Version:** 1.0.2 · **Dart:** >=3.6.0 · **Flutter:** >=3.27.0
 
@@ -24,6 +24,7 @@ lib/
 └── src/
     ├── power/            # DevicePower: mains power and viewer-away signals
     │   ├── device_power.dart
+    │   ├── android_television.dart  # Cached read of the `magic_device/television` channel; false without the plugin
     │   ├── os_idle.dart          # Conditional export: web arm, or the FFI arm when dart:ffi exists
     │   ├── os_idle_native.dart   # flutter_inactive_timer (macOS and Windows)
     │   └── os_idle_web.dart      # Throws: the web has no system-wide input clock
@@ -35,6 +36,8 @@ macos/                    # The macOS plugin, WindowFullscreen's native half
 └── magic_device/
     ├── Package.swift     # Swift Package Manager
     └── Sources/magic_device/MagicDevicePlugin.swift  # Finds the window holding the Flutter view on each call
+
+android/                  # The Android plugin, DevicePower's television signal (Kotlin MagicDevicePlugin, UiModeManager)
 
 example/                  # macOS app: toggles the window and logs each notification
 doc/                      # User docs, published by the docs site: getting-started/, basics/, guides/
@@ -78,8 +81,8 @@ Every feature, fix, or refactor must go through the red-green-refactor cycle:
 |---------|-----|
 | Reaching into `battery_plus` to fake the battery read | Pass `batteryState:` to the constructor; `Battery()` is a singleton in battery_plus 7 and `DevicePower` holds it |
 | Importing `flutter_inactive_timer` from `device_power.dart` | Go through `os_idle.dart`, so `dart:ffi` never reaches the web compiler |
-| Treating `unknown` as mains | A batteryless Android reports `unknown`; the host passes `television` to answer true on a box that never runs on a battery |
-| Referencing an app type in the package | The `television` predicate is the seam; the default is `() => false` |
+| Treating `unknown` as mains | A batteryless Android TV reports `unknown`; `DevicePower` answers true for a television, which on Android it reads from the plugin's `UiModeManager` channel. Another signal goes in through `television:` |
+| Referencing an app type in the package | The `television` predicate is the seam; the default is the Android channel reader on Android and `() => false` elsewhere |
 | A second `WindowFullscreen` object | Use `WindowFullscreen.instance`: the channel takes one handler, and a second object would replace the first one's |
 | Editing the host's `MainFlutterWindow.swift` for fullscreen | Not needed: `MagicDevicePlugin` finds the window holding the Flutter view on each call |
 | Relative paths in `pubspec_overrides.yaml` | Use absolute ones; the file is never committed |
@@ -95,6 +98,6 @@ The first publish (0.0.1) was a manual `flutter pub publish`, since tag-triggere
 ## CI
 
 - `ci.yml`: push/PR → `flutter pub get` → `flutter analyze --no-fatal-infos` → `dart format --set-exit-if-changed` → `flutter test --coverage` → codecov upload
-- `changelog.yml`: a PR that changes `lib/` or `macos/` must also change `CHANGELOG.md`; Dependabot, `release:` PRs and the `skip-changelog` label are exempt
+- `changelog.yml`: a PR that changes `lib/`, `macos/` or `android/` must also change `CHANGELOG.md`; Dependabot, `release:` PRs and the `skip-changelog` label are exempt
 - `docs-link-check.yml`: every PR runs `python3 tool/check-docs.py` and an offline lychee pass; Mondays an external-link pass
 - `publish.yml`: tag on master → version stamps (tag, pubspec, podspec, skill) → analyze, format, test, dry-run, pana 160/160, changelog section → OIDC publish → GitHub Release

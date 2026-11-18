@@ -38,6 +38,8 @@ void main() {
 
 `BatteryState` comes from `package:magic_device/magic_device.dart`, so the test does not need `battery_plus` as a direct dependency.
 
+`flutter_test` runs as Android by default, and on Android the default `television` reader asks the `magic_device/television` channel once per process. In a plain `test()` nothing answers it, so it reads `false`. In a `testWidgets` body the platform reply never arrives (the `FakeAsync` zone swallows it) and `charging` would wait for ever, so pass `television:` or `platform:` there to choose the answer instead.
+
 <a name="lifecycle"></a>
 ## Lifecycle
 

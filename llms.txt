@@ -41,7 +41,7 @@ Nothing is collected until `start()`; `stop()` resets `idle` to false.
 
 ## Platforms
 
-- `DevicePower` is plain Dart over `battery_plus` with no native code of its own. System-wide idle (last input clock) works on native macOS and Windows only; every other platform reports idle whenever the app is not in front, from the app lifecycle.
+- `DevicePower` is Dart over `battery_plus`, plus a small Android plugin (`MagicDevicePlugin`, channel `magic_device/television`) that asks `UiModeManager` once per process whether the device is a television; no `MainActivity` edit. Every other platform answers false without asking. System-wide idle (last input clock) works on native macOS and Windows only; every other platform reports idle whenever the app is not in front, from the app lifecycle.
 - `WindowFullscreen` is macOS only. The package ships its own macOS plugin (`MagicDevicePlugin`, channel `magic_device/window`), so the host's `MainFlutterWindow.swift` stays Flutter's stock one. Everywhere else `toggle()` sends nothing and `available` is false.
 - The pubspec declares Android, iOS, Linux, macOS and Windows. A web build runs the same Dart code, but web is not declared, so pub.dev shows no web tag.
 
@@ -50,7 +50,7 @@ Nothing is collected until `start()`; `stop()` resets `idle` to false.
 - Import only `package:magic_device/magic_device.dart`; everything under `src/` is private.
 - Use `DevicePower.instance`, or build one `DevicePower(...)` when you must inject a reader. Let one component own `start()` and `stop()`: `stop()` has no reference count and resets `idle` to false for every consumer.
 - To fake or replace the battery read, pass `batteryState:` instead of calling `Battery()` yourself.
-- Pass `television: () => isTelevision` on Android TV: a batteryless TV reports `unknown`, which would read as not charging forever.
+- On Android TV leave `television` at its default: it asks `UiModeManager`, and a batteryless TV, which reports `unknown`, then answers `charging` true. Pass `television:` only for another signal or to fix the answer in a test.
 - Use `WindowFullscreen.instance` and gate every control on `available`. `toggle()` throws a `PlatformException` (`no_window`) when the Flutter view is not in a window.
 - In tests, inject the readers and call `WindowFullscreen.resetInstance()` in `tearDown`. The app lifecycle is the one read that cannot be injected; drive it through the test binding.
 
