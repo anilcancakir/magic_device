@@ -39,8 +39,11 @@ final class DevicePower with WidgetsBindingObserver {
 
   /// Every reader is injectable. [television] answers whether the device is a
   /// television, which has no battery to read. On Android the default asks the
-  /// package's Android plugin once per process; everywhere else it is false
-  /// without asking. A host passes its own to use another signal.
+  /// package's Android plugin and reuses a settled answer; everywhere else it
+  /// is false without asking. A host passes its own to use another signal. A
+  /// widget test passes `television:` (or a non-Android [platform]): under
+  /// `FakeAsync` the plugin's reply never arrives, and `platform:
+  /// TargetPlatform.android` alone still uses the plugin.
   DevicePower({
     Future<BatteryState> Function()? batteryState,
     Future<int> Function()? idleDuration,

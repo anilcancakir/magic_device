@@ -38,7 +38,7 @@ void main() {
 
 `BatteryState` comes from `package:magic_device/magic_device.dart`, so the test does not need `battery_plus` as a direct dependency.
 
-`flutter_test` runs as Android by default, and on Android the default `television` reader asks the `magic_device/television` channel once per process. In a plain `test()` nothing answers it, so it reads `false`. In a `testWidgets` body the platform reply never arrives (the `FakeAsync` zone swallows it) and `charging` would wait for ever, so pass `television:` or `platform:` there to choose the answer instead.
+`flutter_test` runs as Android by default, and on Android the default `television` reader asks the `magic_device/television` channel. In a plain `test()`, with no binding or with a binding and no handler, nothing answers it and it reads `false`. In a `testWidgets` body the platform reply never arrives (the `FakeAsync` zone swallows it) and `charging` would wait for ever, so pass `television:` with the answer the test needs, or a non-Android `platform:`; `platform: TargetPlatform.android` alone still asks the channel. A settled answer is reused by later tests in the same isolate, even after a mock handler is removed, so a test that needs its own answer passes `television:`.
 
 <a name="lifecycle"></a>
 ## Lifecycle

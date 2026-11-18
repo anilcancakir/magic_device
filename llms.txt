@@ -41,7 +41,7 @@ Nothing is collected until `start()`; `stop()` resets `idle` to false.
 
 ## Platforms
 
-- `DevicePower` is Dart over `battery_plus`, plus a small Android plugin (`MagicDevicePlugin`, channel `magic_device/television`) that asks `UiModeManager` once per process whether the device is a television; no `MainActivity` edit. Every other platform answers false without asking. System-wide idle (last input clock) works on native macOS and Windows only; every other platform reports idle whenever the app is not in front, from the app lifecycle.
+- `DevicePower` is Dart over `battery_plus`, plus a small Android plugin (`MagicDevicePlugin`, channel `magic_device/television`) that asks `UiModeManager` whether the device is a television and reuses a settled answer; no `MainActivity` edit. Every other platform answers false without asking. System-wide idle (last input clock) works on native macOS and Windows only; every other platform reports idle whenever the app is not in front, from the app lifecycle.
 - `WindowFullscreen` is macOS only. The package ships its own macOS plugin (`MagicDevicePlugin`, channel `magic_device/window`), so the host's `MainFlutterWindow.swift` stays Flutter's stock one. Everywhere else `toggle()` sends nothing and `available` is false.
 - The pubspec declares Android, iOS, Linux, macOS and Windows. A web build runs the same Dart code, but web is not declared, so pub.dev shows no web tag.
 

@@ -70,7 +70,7 @@ Nothing is collected until `start()`, and `stop()` resets `idle` to false.
 
 ### Televisions
 
-A batteryless Android TV reports `unknown`, which would read as not charging forever. On Android the default `television` reader asks the package's Android plugin once per process (`UiModeManager` reports the television UI mode), and a television answers `charging` true without reading the battery, `DevicePower.instance` included. Every other platform answers false without asking. Pass a `television` predicate to use another signal, and in a `testWidgets` body pass `television:` or `platform:`, since the platform reply never arrives under `FakeAsync`.
+A batteryless Android TV reports `unknown`, which would read as not charging forever. On Android the default `television` reader asks the package's Android plugin (`UiModeManager` reports the television UI mode) and reuses a settled answer, and a television answers `charging` true without reading the battery, `DevicePower.instance` included. Every other platform answers false without asking. Pass a `television` predicate to use another signal. In a `testWidgets` body pass `television:`, or a non-Android `platform:`: the platform reply never arrives under `FakeAsync`, and `platform: TargetPlatform.android` alone still asks the plugin.
 
 ### Testing
 
@@ -114,7 +114,7 @@ Rules for an agent writing code against this package. Each one is a mistake the 
 | Import only `package:magic_device/magic_device.dart` | Everything under `src/` is private. |
 | Use `DevicePower.instance`, or build one `DevicePower(...)` when you need to inject a reader; let one component own `start()` and `stop()` | `instance` is shared and `stop()` has no reference count: it resets `idle` to false for every consumer. To fake or replace the battery read, pass `batteryState:` instead of calling `Battery()` yourself. |
 | `await power.charging`, read `power.idle` synchronously | `charging` asks the platform; `idle` is cached after `start()`. |
-| Leave `television` at its default on Android TV; pass it only for another signal | The default asks `UiModeManager` once per process. A batteryless TV reports `unknown`, which would read as not charging forever. |
+| Leave `television` at its default on Android TV; pass it only for another signal | The default asks `UiModeManager` and reuses a settled answer. A batteryless TV reports `unknown`, which would read as not charging forever. |
 | Use `WindowFullscreen.instance`, add and remove a listener, never `dispose()` it, and gate the control on `available` | The channel takes one handler, and disposing the shared instance leaves every other reader on a disposed notifier. Non-macOS platforms send nothing. |
 | Call `WindowFullscreen.resetInstance()` in `tearDown`; inject the four `DevicePower` readers in tests | No mocking library is needed. |
 

@@ -41,7 +41,7 @@ jobs:
             *,skip-changelog,*) echo "skip-changelog label: exempt."; exit 0 ;;
           esac
 
-          changed="$(git diff --name-only "origin/$BASE_REF"...HEAD)"
+          changed="$(git diff --name-only --no-renames "origin/$BASE_REF"...HEAD)"
 
           if ! printf '%s\n' "$changed" | grep -Eq "$CODE_PATHS"; then
             echo "No shipped code changed: nothing to record."

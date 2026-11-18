@@ -15,16 +15,21 @@ Know whether the device is on mains power and whether the viewer is away, so a h
 ## Basic Usage
 
 ```dart
+import 'package:flutter/widgets.dart';
 import 'package:magic_device/magic_device.dart';
 
-final DevicePower power = DevicePower.instance;
-power.start();
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-if (await power.charging && power.idle) {
-  // Safe to run the heavy job.
+  final DevicePower power = DevicePower.instance;
+  power.start();
+
+  if (await power.charging && power.idle) {
+    // Safe to run the heavy job.
+  }
+
+  power.stop();
 }
-
-power.stop();
 ```
 
 Nothing is collected until `start()`: an instance that never starts holds no channel, no timer and no lifecycle observer.
@@ -76,16 +81,21 @@ A batteryless Android TV reports `unknown`, which would read as not charging for
 
 | Platform | Default `television` answer |
 |:---------|:----------------------------|
-| Android | The package's Android plugin: `UiModeManager.currentModeType` is `UI_MODE_TYPE_TELEVISION`. Asked over the `magic_device/television` channel once per process, then stored, since the form factor cannot change. With no plugin behind the channel it answers `false`. |
+| Android | The package's Android plugin: `UiModeManager.currentModeType` is `UI_MODE_TYPE_TELEVISION`. Asked over the `magic_device/television` channel; a settled answer is reused for the isolate, since the form factor cannot change, though reads that start before the first reply may each ask. With no plugin behind the channel it settles on `false`; a `PlatformException`, or no Flutter binding yet, answers `false` for that read only and a later read asks again. |
 | iOS, macOS, Linux, Windows, web | `false`, without opening a channel. |
 
-`DevicePower.instance` uses that default, so it answers for an Android TV with no setup and no host code. Pass `television` to use another signal, or to fix the answer in a test; an injected predicate replaces the default, and it may answer synchronously or with a `Future`.
+`DevicePower.instance` uses that default, so it answers for an Android TV with no setup and no host code, provided the system reports the television UI mode (`UI_MODE_TYPE_TELEVISION`). A device that advertises the `leanback` feature but keeps another UI mode answers `false`, and `charging` falls back to the battery state, which a batteryless box reports as `unknown`: pass `television` for such a device. Pass `television` to use another signal, or to fix the answer in a test; an injected predicate replaces the default, and it may answer synchronously or with a `Future`.
 
 ```dart
 import 'package:magic_device/magic_device.dart';
 
-// isKiosk is your own signal, for example a build flavour.
-final DevicePower power = DevicePower(television: () => isKiosk);
+// Your own signal, here a --dart-define=KIOSK=true build flavour.
+const bool isKiosk = bool.fromEnvironment('KIOSK');
+
+void main() {
+  final DevicePower power = DevicePower(television: () => isKiosk);
+  power.start();
+}
 ```
 
 <a name="lifecycle"></a>
