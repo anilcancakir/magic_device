@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/anilcancakir/magic_device/master/.github/magic-logo.svg" width="120" alt="Magic Logo" />
+  <img src="https://raw.githubusercontent.com/anilcancakir/magic_device/master/screenshots/logo.png" width="120" alt="Magic Device logo" />
 </p>
 
 <h1 align="center">Magic Device</h1>
