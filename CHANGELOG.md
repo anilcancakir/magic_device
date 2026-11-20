@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- **The README and the pub.dev listing show the plugin's own logo instead of the Magic logo.** `pubspec.yaml` gains a `screenshots` entry for a 512 pixel PNG of the mark the docs site serves, the README links the same file, and `.github/magic-logo.svg` is gone. `publish.yml` installs the WebP tools pana needs to score the screenshot. (`pubspec.yaml`, `screenshots/`, `README.md`, `.github/`)
+- **The README shows the plugin's own logo instead of the Magic logo.** `.github/logo.png`, a 512 pixel PNG of the mark the docs site serves, replaces `.github/magic-logo.svg`. (`README.md`, `.github/`)
 
 ## [1.1.0] - 2026-11-18
 

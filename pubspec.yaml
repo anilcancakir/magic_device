@@ -12,10 +12,6 @@ topics:
   - fullscreen
   - magic
 
-screenshots:
-  - description: "The Magic Device logo."
-    path: screenshots/logo.png
-
 # Every platform the package runs on. The native half exists on Android and
 # macOS only (see `flutter.plugin.platforms` below), so pub.dev would tag it
 # with those two alone; the Dart half is plain Dart over battery_plus, answers
