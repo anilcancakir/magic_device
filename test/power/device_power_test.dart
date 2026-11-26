@@ -4,6 +4,7 @@ import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:magic/magic.dart' show MagicPlatform;
 import 'package:magic_device/src/power/android_television.dart';
 import 'package:magic_device/src/power/device_power.dart';
 
@@ -158,6 +159,34 @@ void main() {
         expect(batteryReads, 1);
       });
     }
+
+    test('an Apple TV is a television on mains without any native call',
+        () async {
+      answer(true);
+      MagicPlatform.debugTvOSOverride = true;
+      addTearDown(() => MagicPlatform.debugTvOSOverride = null);
+      final DevicePower power = DevicePower(
+        platform: TargetPlatform.iOS,
+        batteryState: unknownBattery,
+      );
+
+      expect(await power.charging, isTrue);
+      expect(calls, isEmpty);
+      expect(batteryReads, 0);
+    });
+
+    test('an injected television wins over the tvOS answer', () async {
+      MagicPlatform.debugTvOSOverride = true;
+      addTearDown(() => MagicPlatform.debugTvOSOverride = null);
+      final DevicePower power = DevicePower(
+        platform: TargetPlatform.iOS,
+        television: () => false,
+        batteryState: unknownBattery,
+      );
+
+      expect(await power.charging, isFalse);
+      expect(batteryReads, 1);
+    });
 
     test('an injected television wins over the channel', () async {
       answer(true);

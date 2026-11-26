@@ -4,6 +4,7 @@ import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:magic/magic.dart' show MagicPlatform;
 import 'package:magic_device/src/power/android_television.dart';
 import 'package:magic_device/src/power/os_idle.dart';
 
@@ -39,9 +40,9 @@ final class DevicePower with WidgetsBindingObserver {
 
   /// Every reader is injectable. [television] answers whether the device is a
   /// television, which has no battery to read. On Android the default asks the
-  /// package's Android plugin and reuses a settled answer; everywhere else it
-  /// is false without asking. A host passes its own to use another signal. A
-  /// widget test passes `television:` (or a non-Android [platform]): under
+  /// package's Android plugin and reuses a settled answer; on tvOS it is true
+  /// without asking; everywhere else it is false without asking. A host passes
+  /// its own to use another signal. A widget test passes `television:` (or a non-Android [platform]): under
   /// `FakeAsync` the plugin's reply never arrives, and `platform:
   /// TargetPlatform.android` alone still uses the plugin.
   DevicePower({
@@ -74,7 +75,7 @@ final class DevicePower with WidgetsBindingObserver {
   ///
   /// A television answers true without reading the battery: a batteryless
   /// Android TV reports `unknown`, which would gate the work off forever on a
-  /// box that never runs on anything else.
+  /// box that never runs on anything else. An Apple TV has no battery either.
   Future<bool> get charging async {
     if (await _isTelevision()) return true;
 
@@ -171,12 +172,19 @@ final class DevicePower with WidgetsBindingObserver {
 
   static Future<BatteryState> _batteryStateOf() => _battery.batteryState;
 
-  /// The default television reader for [platform]. The web never opens the
-  /// channel, even in a browser on an Android device: no plugin answers there.
-  static FutureOr<bool> Function() _televisionOf(TargetPlatform platform) =>
-      !kIsWeb && platform == TargetPlatform.android
-          ? isAndroidTelevision
-          : _neverTelevision;
+  /// The default television reader for [platform]. An Apple TV is always one
+  /// and reports itself as iOS, so it is told apart before the platform is
+  /// read. The web never opens the channel, even in a browser on an Android
+  /// device: no plugin answers there.
+  static FutureOr<bool> Function() _televisionOf(TargetPlatform platform) {
+    if (MagicPlatform.isTvOS) return _alwaysTelevision;
+
+    return !kIsWeb && platform == TargetPlatform.android
+        ? isAndroidTelevision
+        : _neverTelevision;
+  }
+
+  static bool _alwaysTelevision() => true;
 
   static bool _neverTelevision() => false;
 }
