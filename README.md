@@ -32,8 +32,8 @@
 | Import | `package:magic_device/magic_device.dart` |
 | Entry points | `DevicePower` (mains power, viewer away), `WindowFullscreen` (macOS window state) |
 | Platforms | `DevicePower` is Dart over `battery_plus`, plus a small Android plugin that tells it whether the device is a television; system-wide idle on native macOS and Windows only. `WindowFullscreen` is macOS only and reports `available == false` elsewhere. The pubspec declares Android, iOS, Linux, macOS and Windows; a web build runs the same Dart code, but web is not declared, so the pub.dev page carries no web tag. |
-| Requires | Dart >=3.6, Flutter >=3.27 |
-| Dependencies | `battery_plus`, `flutter_inactive_timer`; `WindowFullscreen` uses the Flutter SDK only |
+| Requires | Dart >=3.13, Flutter >=3.47 (the floors of `magic`) |
+| Dependencies | `battery_plus`, `flutter_inactive_timer`, `magic` (the tvOS check); `WindowFullscreen` uses the Flutter SDK only |
 | License | MIT |
 
 ## Install
@@ -70,7 +70,7 @@ Nothing is collected until `start()`, and `stop()` resets `idle` to false.
 
 ### Televisions
 
-A batteryless Android TV reports `unknown`, which would read as not charging forever. On Android the default `television` reader asks the package's Android plugin (`UiModeManager` reports the television UI mode) and reuses a settled answer, and a television answers `charging` true without reading the battery, `DevicePower.instance` included. On every other platform the default `television` reader answers false without opening the channel, and `charging` then reads the battery state. Pass a `television` predicate to use another signal. In a `testWidgets` body pass `television:`, or a non-Android `platform:`: the platform reply never arrives under `FakeAsync`, and `platform: TargetPlatform.android` alone still asks the plugin.
+A batteryless Android TV reports `unknown`, which would read as not charging forever. On Android the default `television` reader asks the package's Android plugin (`UiModeManager` reports the television UI mode) and reuses a settled answer, and a television answers `charging` true without reading the battery, `DevicePower.instance` included. On tvOS, which reports itself as iOS, it answers true without opening the channel, because an Apple TV is always on mains. On every other platform the default `television` reader answers false without opening the channel, and `charging` then reads the battery state. Pass a `television` predicate to use another signal. In a `testWidgets` body pass `television:`, or a non-Android `platform:`: the platform reply never arrives under `FakeAsync`, and `platform: TargetPlatform.android` alone still asks the plugin.
 
 ### Testing
 

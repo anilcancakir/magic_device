@@ -38,18 +38,15 @@ class _FakeWindow {
 Future<void> _push(String method) async {
   await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .handlePlatformMessage(
-    _channel.name,
-    const StandardMethodCodec().encodeMethodCall(MethodCall(method)),
-    (ByteData? _) {},
-  );
+        _channel.name,
+        const StandardMethodCodec().encodeMethodCall(MethodCall(method)),
+        (ByteData? _) {},
+      );
 }
 
 /// The three readings, so one expectation pins a whole state.
-(bool, bool, bool) _state(WindowFullscreen window) => (
-      window.active,
-      window.target,
-      window.transitioning,
-    );
+(bool, bool, bool) _state(WindowFullscreen window) =>
+    (window.active, window.target, window.transitioning);
 
 /// Drops the reader and the platform override inside a `testWidgets` body,
 /// which checks that every foundation debug variable is unset before
@@ -153,23 +150,27 @@ void main() {
       await fullscreen.toggle();
       await fullscreen.toggle();
 
-      expect(window.calls.where((String c) => c == 'toggleFullScreen'),
-          hasLength(1));
+      expect(
+        window.calls.where((String c) => c == 'toggleFullScreen'),
+        hasLength(1),
+      );
     });
 
-    test('a press during the animation is ignored, and allowed once it lands',
-        () async {
-      final WindowFullscreen fullscreen = WindowFullscreen.instance;
-      await pumpEventQueue();
+    test(
+      'a press during the animation is ignored, and allowed once it lands',
+      () async {
+        final WindowFullscreen fullscreen = WindowFullscreen.instance;
+        await pumpEventQueue();
 
-      await _push('willEnterFullScreen');
-      await fullscreen.toggle();
-      expect(window.calls, ['isFullScreen']);
+        await _push('willEnterFullScreen');
+        await fullscreen.toggle();
+        expect(window.calls, ['isFullScreen']);
 
-      await _push('didEnterFullScreen');
-      await fullscreen.toggle();
-      expect(window.calls, ['isFullScreen', 'toggleFullScreen']);
-    });
+        await _push('didEnterFullScreen');
+        await fullscreen.toggle();
+        expect(window.calls, ['isFullScreen', 'toggleFullScreen']);
+      },
+    );
 
     test('a refused toggle rethrows and releases the press', () async {
       final WindowFullscreen fullscreen = WindowFullscreen.instance;
@@ -179,12 +180,15 @@ void main() {
       await expectLater(fullscreen.toggle(), throwsA(isA<PlatformException>()));
       await fullscreen.toggle();
 
-      expect(window.calls.where((String c) => c == 'toggleFullScreen'),
-          hasLength(2));
+      expect(
+        window.calls.where((String c) => c == 'toggleFullScreen'),
+        hasLength(2),
+      );
     });
 
-    testWidgets('an ignored toggle releases the press after pressTimeout',
-        (WidgetTester tester) async {
+    testWidgets('an ignored toggle releases the press after pressTimeout', (
+      WidgetTester tester,
+    ) async {
       final WindowFullscreen fullscreen = WindowFullscreen.instance;
       await tester.pump();
 
@@ -210,8 +214,9 @@ void main() {
       _releaseBeforeInvariants();
     });
 
-    testWidgets('a toggle that sent no notification re-reads the window',
-        (WidgetTester tester) async {
+    testWidgets('a toggle that sent no notification re-reads the window', (
+      WidgetTester tester,
+    ) async {
       final WindowFullscreen fullscreen = WindowFullscreen.instance;
       await tester.pump();
       int notified = 0;
@@ -226,8 +231,9 @@ void main() {
       _releaseBeforeInvariants();
     });
 
-    testWidgets('a notification releases the press before the timeout',
-        (WidgetTester tester) async {
+    testWidgets('a notification releases the press before the timeout', (
+      WidgetTester tester,
+    ) async {
       final WindowFullscreen fullscreen = WindowFullscreen.instance;
       await tester.pump();
 
@@ -249,8 +255,10 @@ void main() {
     });
 
     test('one shared reader', () {
-      expect(identical(WindowFullscreen.instance, WindowFullscreen.instance),
-          isTrue);
+      expect(
+        identical(WindowFullscreen.instance, WindowFullscreen.instance),
+        isTrue,
+      );
     });
 
     test('a reset reader reads the window afresh', () async {

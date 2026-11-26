@@ -15,7 +15,7 @@ topics:
 # Every platform the package runs on. The native half exists on Android and
 # macOS only (see `flutter.plugin.platforms` below), so pub.dev would tag it
 # with those two alone; the Dart half is plain Dart over battery_plus, answers
-# `available` false off macOS and asks for a television on Android only.
+# `available` false off macOS and asks for a television on Android only (tvOS answers true through magic).
 platforms:
   android:
   ios:
@@ -24,8 +24,8 @@ platforms:
   windows:
 
 environment:
-  sdk: ">=3.6.0 <4.0.0"
-  flutter: ">=3.27.0"
+  sdk: ">=3.13.0 <4.0.0"
+  flutter: ">=3.47.0"
 
 dependencies:
   flutter:
@@ -37,6 +37,10 @@ dependencies:
   # idle falls back to the app lifecycle, which is why it is not the whole
   # signal. No native build step.
   flutter_inactive_timer: ^4.0.0
+  # The one tvOS seam of the ecosystem: DevicePower asks MagicPlatform.isTvOS
+  # rather than reading the operating system itself. Its Dart and Flutter
+  # floors are the ones declared above.
+  magic: ^1.0.0
 
 dev_dependencies:
   flutter_test:

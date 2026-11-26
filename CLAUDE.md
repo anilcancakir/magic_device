@@ -4,7 +4,7 @@
 
 Device signals for Flutter apps and the Magic Framework: mains power and viewer-away (`DevicePower`, Dart plus a small Android plugin that reads the television mode) and the macOS window fullscreen state (`WindowFullscreen`, backed by this package's own macOS plugin, `MagicDevicePlugin`).
 
-**Version:** 1.1.0 · **Dart:** >=3.6.0 · **Flutter:** >=3.27.0
+**Version:** 1.1.0 · **Dart:** >=3.13.0 · **Flutter:** >=3.47.0
 
 ## Commands
 
@@ -82,7 +82,7 @@ Every feature, fix, or refactor must go through the red-green-refactor cycle:
 | Reaching into `battery_plus` to fake the battery read | Pass `batteryState:` to the constructor; `Battery()` is a singleton in battery_plus 7 and `DevicePower` holds it |
 | Importing `flutter_inactive_timer` from `device_power.dart` | Go through `os_idle.dart`, so `dart:ffi` never reaches the web compiler |
 | Treating `unknown` as mains | A batteryless Android TV reports `unknown`; `DevicePower` answers true for a television, which on Android it reads from the plugin's `UiModeManager` channel. Another signal goes in through `television:` |
-| Referencing an app type in the package | The `television` predicate is the seam; the default is the Android channel reader on Android and `() => false` elsewhere |
+| Referencing an app type in the package | The `television` predicate is the seam; the default is the Android channel reader on Android, `() => true` on tvOS (`MagicPlatform.isTvOS`, checked before the platform) and `() => false` elsewhere |
 | A second `WindowFullscreen` object | Use `WindowFullscreen.instance`: the channel takes one handler, and a second object would replace the first one's |
 | Editing the host's `MainFlutterWindow.swift` for fullscreen | Not needed: `MagicDevicePlugin` finds the window holding the Flutter view on each call |
 | Relative paths in `pubspec_overrides.yaml` | Use absolute ones; the file is never committed |

@@ -27,9 +27,9 @@ The barrel is the only import; everything under `src/` is private. `BatteryState
 
 | Requirement | Value |
 |:------------|:------|
-| Dart | `>=3.6.0` |
-| Flutter | `>=3.27.0` |
-| Dependencies | `battery_plus` and `flutter_inactive_timer`, pulled in automatically; `WindowFullscreen` uses the Flutter SDK only |
+| Dart | `>=3.13.0` (the floor of `magic`) |
+| Flutter | `>=3.47.0` (the floor of `magic`) |
+| Dependencies | `battery_plus`, `flutter_inactive_timer` and `magic` (the tvOS check), pulled in automatically; `WindowFullscreen` uses the Flutter SDK only |
 | Flutter binding | Outside native macOS and Windows, `DevicePower.start()` attaches a lifecycle observer, so call it from the main isolate once Flutter's binding exists |
 
 <a name="what-you-do-not-need"></a>

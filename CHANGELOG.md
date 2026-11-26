@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **`DevicePower` answers for an Apple TV.** On tvOS the default `television` reader is true without asking the channel, so `charging` is true without reading the battery: an Apple TV is always on mains, and tvOS reports itself as iOS, which the platform check alone cannot tell apart. The tvOS check goes through `MagicPlatform.isTvOS`, so the package now depends on `magic` (`^1.0.0`), which raises the declared floors to Dart >=3.13 and Flutter >=3.47, the floors `magic` already needs. Android TV and every other platform answer as before. (`lib/src/power/device_power.dart`, `pubspec.yaml`, `README.md`, `llms.txt`, `CLAUDE.md`, `doc/`, `skills/magic-device/SKILL.md`)
+
 ### Changed
 
 - **The README shows the plugin's own logo instead of the Magic logo.** `.github/logo.png`, a 512 pixel PNG of the mark the docs site serves, replaces `.github/magic-logo.svg`. (`README.md`, `.github/`)

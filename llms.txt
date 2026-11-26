@@ -2,7 +2,7 @@
 
 > Device signals for Flutter: whether the device is on mains power (`DevicePower.charging`), whether the viewer is away (`DevicePower.idle`) and whether the macOS window is fullscreen (`WindowFullscreen`). One import, no setup, no Runner edits.
 
-**Stack**: Flutter >=3.27.0 · Dart >=3.6.0 · Runtime deps: `battery_plus`, `flutter_inactive_timer`. `WindowFullscreen` uses the Flutter SDK only. No mocking library, no state management library.
+**Stack**: Flutter >=3.47.0 · Dart >=3.13.0 · Runtime deps: `battery_plus`, `flutter_inactive_timer`, `magic`. `WindowFullscreen` uses the Flutter SDK only. No mocking library, no state management library.
 
 **Setup**:
 
@@ -41,7 +41,7 @@ Nothing is collected until `start()`; `stop()` resets `idle` to false.
 
 ## Platforms
 
-- `DevicePower` is Dart over `battery_plus`, plus a small Android plugin (`MagicDevicePlugin`, channel `magic_device/television`) that asks `UiModeManager` whether the device is a television and reuses a settled answer; no `MainActivity` edit. Every other platform answers false without asking. System-wide idle (last input clock) works on native macOS and Windows only; every other platform reports idle whenever the app is not in front, from the app lifecycle.
+- `DevicePower` is Dart over `battery_plus`, plus a small Android plugin (`MagicDevicePlugin`, channel `magic_device/television`) that asks `UiModeManager` whether the device is a television and reuses a settled answer; no `MainActivity` edit. tvOS (reported as iOS by flutter-tvos) answers true without asking, through `MagicPlatform.isTvOS`; every other platform answers false without asking. System-wide idle (last input clock) works on native macOS and Windows only; every other platform reports idle whenever the app is not in front, from the app lifecycle.
 - `WindowFullscreen` is macOS only. The package ships its own macOS plugin (`MagicDevicePlugin`, channel `magic_device/window`), so the host's `MainFlutterWindow.swift` stays Flutter's stock one. Everywhere else `toggle()` sends nothing and `available` is false.
 - The pubspec declares Android, iOS, Linux, macOS and Windows. A web build runs the same Dart code, but web is not declared, so pub.dev shows no web tag.
 

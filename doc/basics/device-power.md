@@ -39,7 +39,7 @@ Nothing is collected until `start()`: an instance that never starts holds no cha
 
 | Member | Type | Meaning |
 |:-------|:-----|:--------|
-| `DevicePower({batteryState, idleDuration, platform, television})` | constructor | Every platform read is injectable. Omitted readers use `battery_plus`, the OS idle clock and `defaultTargetPlatform`; `television` defaults to the package's Android check on Android and to `false` everywhere else. |
+| `DevicePower({batteryState, idleDuration, platform, television})` | constructor | Every platform read is injectable. Omitted readers use `battery_plus`, the OS idle clock and `defaultTargetPlatform`; `television` defaults to the package's Android check on Android, to `true` on tvOS and to `false` everywhere else. |
 | `DevicePower.instance` | `static final DevicePower` | Shared instance built with every default, so on Android it answers for a television. |
 | `charging` | `Future<bool>` | On mains power. Asks the platform on every read. |
 | `idle` | `bool` | Away. On native macOS and Windows: no input for `idleThreshold`. Everywhere else: any app lifecycle state but `resumed`, immediately, with no threshold. A cached flag: read it without awaiting. |
@@ -82,6 +82,7 @@ A batteryless Android TV reports `unknown`, which would read as not charging for
 | Platform | Default `television` answer |
 |:---------|:----------------------------|
 | Android | The package's Android plugin: `UiModeManager.currentModeType` is `UI_MODE_TYPE_TELEVISION`. Asked over the `magic_device/television` channel; a settled answer is reused for the isolate, since the form factor cannot change, though reads that start before the first reply may each ask. With no plugin behind the channel it settles on `false`; a `PlatformException`, or no Flutter binding yet, answers `false` for that read only and a later read asks again. |
+| tvOS | `true`, without opening a channel. flutter-tvos reports an Apple TV as iOS, so the check goes through `MagicPlatform.isTvOS` from `magic` before the platform is read. |
 | iOS, macOS, Linux, Windows, web | `false`, without opening a channel. |
 
 `DevicePower.instance` uses that default, so it answers for an Android TV with no setup and no host code, provided the system reports the television UI mode (`UI_MODE_TYPE_TELEVISION`). A device that advertises the `leanback` feature but keeps another UI mode answers `false`, and `charging` falls back to the battery state, which a batteryless box reports as `unknown`: pass `television` for such a device. Pass `television` to use another signal, or to fix the answer in a test; an injected predicate replaces the default, and it may answer synchronously or with a `Future`.
