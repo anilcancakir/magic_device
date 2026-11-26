@@ -42,21 +42,20 @@ final class DevicePower with WidgetsBindingObserver {
   /// television, which has no battery to read. On Android the default asks the
   /// package's Android plugin and reuses a settled answer; on tvOS it is true
   /// without asking; everywhere else it is false without asking. A host passes
-  /// its own to use another signal. A widget test passes `television:` (or a non-Android [platform]): under
-  /// `FakeAsync` the plugin's reply never arrives, and `platform:
-  /// TargetPlatform.android` alone still uses the plugin.
+  /// its own to use another signal. A widget test passes `television:` (or a
+  /// non-Android [platform]): under `FakeAsync` the plugin's reply never
+  /// arrives, and `platform: TargetPlatform.android` alone still uses the
+  /// plugin.
   DevicePower({
     Future<BatteryState> Function()? batteryState,
     Future<int> Function()? idleDuration,
     TargetPlatform? platform,
     FutureOr<bool> Function()? television,
-  })  : _readBatteryState = batteryState ?? _batteryStateOf,
-        _readIdleDuration = idleDuration ?? osIdleMilliseconds,
-        _platform = platform ?? defaultTargetPlatform,
-        _isTelevision = television ??
-            _televisionOf(
-              platform ?? defaultTargetPlatform,
-            );
+  }) : _readBatteryState = batteryState ?? _batteryStateOf,
+       _readIdleDuration = idleDuration ?? osIdleMilliseconds,
+       _platform = platform ?? defaultTargetPlatform,
+       _isTelevision =
+           television ?? _televisionOf(platform ?? defaultTargetPlatform);
 
   /// The `Battery()` the default `batteryState` reader asks: battery_plus makes
   /// it a singleton, so this is the process's one instance.
@@ -158,12 +157,11 @@ final class DevicePower with WidgetsBindingObserver {
   /// [charging] answers for a television before the battery is read.
   @visibleForTesting
   static bool isOnMains(BatteryState state) => switch (state) {
-        BatteryState.full ||
-        BatteryState.charging ||
-        BatteryState.connectedNotCharging =>
-          true,
-        BatteryState.discharging || BatteryState.unknown => false,
-      };
+    BatteryState.full ||
+    BatteryState.charging ||
+    BatteryState.connectedNotCharging => true,
+    BatteryState.discharging || BatteryState.unknown => false,
+  };
 
   bool get _desktopIdle =>
       !kIsWeb &&

@@ -9,14 +9,14 @@ const MethodChannel _channel = MethodChannel('magic_device/television');
 void _answer(bool? television, List<String> calls) {
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(
-    _channel,
-    television == null
-        ? null
-        : (MethodCall call) async {
-            calls.add(call.method);
-            return television;
-          },
-  );
+        _channel,
+        television == null
+            ? null
+            : (MethodCall call) async {
+                calls.add(call.method);
+                return television;
+              },
+      );
 }
 
 void main() {
@@ -67,9 +67,10 @@ void main() {
   test('a failed read answers false and is asked again next time', () async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      _channel,
-      (MethodCall call) async => throw PlatformException(code: 'unavailable'),
-    );
+          _channel,
+          (MethodCall call) async =>
+              throw PlatformException(code: 'unavailable'),
+        );
 
     expect(await isAndroidTelevision(), isFalse);
 

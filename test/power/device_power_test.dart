@@ -71,14 +71,14 @@ void main() {
     void answer(bool? television) {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-        channel,
-        television == null
-            ? null
-            : (MethodCall call) async {
-                calls.add(call.method);
-                return television;
-              },
-      );
+            channel,
+            television == null
+                ? null
+                : (MethodCall call) async {
+                    calls.add(call.method);
+                    return television;
+                  },
+          );
     }
 
     setUp(() {
@@ -92,18 +92,20 @@ void main() {
       resetAndroidTelevision();
     });
 
-    test('an Android television is on mains without reading the battery',
-        () async {
-      answer(true);
-      final DevicePower power = DevicePower(
-        platform: TargetPlatform.android,
-        batteryState: unknownBattery,
-      );
+    test(
+      'an Android television is on mains without reading the battery',
+      () async {
+        answer(true);
+        final DevicePower power = DevicePower(
+          platform: TargetPlatform.android,
+          batteryState: unknownBattery,
+        );
 
-      expect(await power.charging, isTrue);
-      expect(calls, ['isTelevision']);
-      expect(batteryReads, 0);
-    });
+        expect(await power.charging, isTrue);
+        expect(calls, ['isTelevision']);
+        expect(batteryReads, 0);
+      },
+    );
 
     test('any other Android device reads the battery', () async {
       answer(false);
@@ -160,20 +162,22 @@ void main() {
       });
     }
 
-    test('an Apple TV is a television on mains without any native call',
-        () async {
-      answer(true);
-      MagicPlatform.debugTvOSOverride = true;
-      addTearDown(() => MagicPlatform.debugTvOSOverride = null);
-      final DevicePower power = DevicePower(
-        platform: TargetPlatform.iOS,
-        batteryState: unknownBattery,
-      );
+    test(
+      'an Apple TV is a television on mains without any native call',
+      () async {
+        answer(true);
+        MagicPlatform.debugTvOSOverride = true;
+        addTearDown(() => MagicPlatform.debugTvOSOverride = null);
+        final DevicePower power = DevicePower(
+          platform: TargetPlatform.iOS,
+          batteryState: unknownBattery,
+        );
 
-      expect(await power.charging, isTrue);
-      expect(calls, isEmpty);
-      expect(batteryReads, 0);
-    });
+        expect(await power.charging, isTrue);
+        expect(calls, isEmpty);
+        expect(batteryReads, 0);
+      },
+    );
 
     test('an injected television wins over the tvOS answer', () async {
       MagicPlatform.debugTvOSOverride = true;
@@ -294,9 +298,8 @@ void main() {
   });
 
   test('the FFI idle clock stays behind the conditional export', () {
-    final String power = File(
-      'lib/src/power/device_power.dart',
-    ).readAsStringSync();
+    final String power = File('lib/src/power/device_power.dart')
+        .readAsStringSync();
     final String gate = File('lib/src/power/os_idle.dart').readAsStringSync();
 
     expect(power, isNot(contains('flutter_inactive_timer')));
